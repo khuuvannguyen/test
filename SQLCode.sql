@@ -1,0 +1,2174 @@
+﻿/*TẠO CSDL QUẢN LÍ XE KHÁCH*/
+create database QL_XK
+/*SỬ DỤNG CSDL QUẢN LÍ XE KHÁCH*/
+use QL_XK
+GO
+/*====================================================================================*/
+									/********************************
+									|								|
+									|		TẠO TABLE CHO DSDL		|
+									|								|
+									********************************/
+/*TẠO TABLE KHÁCH(1)*/
+create table KHACH  (
+	SDT char(10) primary key not null,
+	HOTEN nvarchar(100) not null,
+	NOIDON nvarchar(100) not null,
+	NOIDUA nvarchar(100) not null
+	)
+	GO
+/*TẠO TABLE XE (2)*/
+create table XE  (
+	SOHIEUXE char(5) primary key not null,
+	BANGSOXE char(11) not null,
+	SOGHE tinyint not null,
+	MAU nvarchar(15) not null,
+	GHICHU nvarchar(100)
+	)
+	GO
+/*TẠO TABLE TÀI XẾ (3)*/
+create table TAIXE  (
+	MATAIXE char(5) primary key not null,
+	HOTEN nvarchar(50) not null,
+	GIOITINH nvarchar(4) not null,
+	NGAYSINH date not null,
+	SOCMND char(9) not null,
+	NGAYCAP date not null,
+	NOICAP nvarchar(50) not null,
+	QUEQUAN nvarchar(50) not null,
+	SDT char(10) not null,
+	BANGLAIXE char(12) not null,
+	NAMVAONGHE date,
+	)
+	GO
+/*TẠO TABLE LỊCH (4)*/
+create table LICH  (
+	MACHUYENDI char(11) primary key not null,
+	NGAYDI date not null,
+	GIODI TIME not null,
+	NGAYDEN DATE,
+	GIODEN TIME,
+	SOHIEUXE char(5)  not null,
+	MATAIXECHINH char(5)  not null,
+	MATAIXEPHU char(5) not null,
+	KHOIHANH NVARCHAR(20) NOT NULL,
+	GHICHU nvarchar(50)
+	)
+	GO
+/*TẠO TABLE VÉ (5)*/
+create table VE  (
+	-- VÍ DỤ CỦA MASOVE: 001.mmddyyCDXXX --
+	-- TRONG ĐÓ: 001 LÀ MÃ SỐ VÉ, mmddyy LÀ NGÀY THÁNG NĂM, CDXXX LÀ MACHUYENDI --
+	MASOVE char(15) primary key not null,
+	SOGHE tinyint not null,
+	GIA int not null,
+	MACHUYENDI char(11),
+	SDT char(10),
+	)
+	GO
+/*TẠO TABLE KIỆN HÀNG (7)*/
+create table KIENHANG  (
+	SDTNGUOIGUI char(10) not null,
+	SDTNGUOINHAN char(10) not null,
+	TENNGUOIGUI nvarchar(50) not null,
+	TENNGUOINHAN nvarchar(50) not null,
+	LOAIHANGHOA nvarchar(50) not null
+	constraint KC_KH primary key (SDTNGUOIGUI,SDTNGUOINHAN),
+	)
+	GO
+/*TẠO TABLE CHỞ HÀNG(8)*/
+create table CHOHANG  (
+	MACHUYENDI char(11)  not null,
+	SDTNGUOIGUI char(10) not null,
+	SDTNGUOINHAN char(10) not null,
+	SOLUONG INT not null,
+	GHICHU nvarchar(50) not null,
+	constraint KC_CH primary key (MACHUYENDI, SDTNGUOIGUI, SDTNGUOINHAN),
+	)
+	GO
+	
+ALTER TABLE CHOHANG
+	ADD CONSTRAINT KN_CH
+	FOREIGN KEY (SDTNGUOIGUI, SDTNGUOINHAN) REFERENCES KIENHANG(SDTNGUOIGUI, SDTNGUOINHAN)
+	ON DELETE CASCADE ON UPDATE CASCADE
+GO 
+
+ALTER TABLE CHOHANG
+	ADD CONSTRAINT L_CH
+	FOREIGN KEY (MACHUYENDI) REFERENCES LICH(MACHUYENDI)
+	ON DELETE CASCADE ON UPDATE CASCADE
+GO 
+
+ALTER TABLE LICH
+	ADD CONSTRAINT FK_LICH_MATAIXECHINH
+	FOREIGN KEY (MATAIXECHINH) REFERENCES TAIXE(MATAIXE)
+	ON DELETE CASCADE ON UPDATE CASCADE
+GO 
+
+ALTER TABLE LICH
+	DROP CONSTRAINT FK_LICH_MATAIXEPHU
+GO
+
+--ALTER TABLE LICH
+--	ADD CONSTRAINT FK_LICH_MATAIXEPHU
+--	FOREIGN KEY (MATAIXEPHU) REFERENCES TAIXE(MATAIXE)
+--	ON DELETE CASCADE ON UPDATE CASCADE
+--GO 
+
+
+ALTER TABLE LICH
+	ADD CONSTRAINT FK_LICH_SOHIEUXE
+	FOREIGN KEY (SOHIEUXE) REFERENCES XE(SOHIEUXE)
+	ON DELETE CASCADE ON UPDATE CASCADE
+GO 
+
+
+ALTER TABLE VE
+	ADD CONSTRAINT FK_VE_MACHUYENDI
+	FOREIGN KEY (MACHUYENDI) REFERENCES LICH(MACHUYENDI)
+	ON DELETE CASCADE ON UPDATE CASCADE
+GO 
+
+ALTER TABLE VE
+	ADD CONSTRAINT FK_VE_SDT
+	FOREIGN KEY (SDT) REFERENCES KHACH(SDT)
+	ON DELETE CASCADE ON UPDATE CASCADE
+GO 
+/*====================================================================================*/	
+									/****************************************
+									|										|
+									|		NHẬP THÔNG TIN CHO TABLE		|
+									|										|
+									****************************************/
+
+/*INSERT CHO BẢNG KHÁCH*/
+insert into KHACH values ('0903123978',N'TRẦN VĂN CƯỜNG',N'CHỢ HIẾU TỬ - HIẾU TỬ - TIỂU CẦN - TRÀ VINH',N'BỆNH VIỆN NHIỆT ĐỚI TP HỒ CHÍ MÌNH')
+insert into KHACH values ('0907145178',N'PHAN VĂN ĐỨC',N'CHỢ CẦU QUAN - TT CẦU QUAN - TIỂU CẦN - TRÀ VINH',N'772 ĐIỆN BIÊN PHỦ - PHƯỜNG 2 - QUẬN BÌNH THẠNH - TP HỒ CHÍ MINH')
+insert into KHACH values ('0903333444',N'TRẦN ĐỨC LÂM',N'ĐẠI HỌC TRÀ VINH',N'BỆNH VIỆN ĐẠI HỌC Y DƯỢC TP HỒ CHÍ MINH')
+insert into KHACH values ('0345876822',N'NGUYỄN THỊ THÙY',N'SIÊU THỊ COOP MART TRÀ VINH',N'47 TRẦN THỊ NGHỈ - PHƯỜNG 7 - QUẬN GÒ VẤP - TP HỒ CHÍ MINH')
+insert into KHACH values ('0321635189',N'NGUYỄN THỊ THÚY DIỄM',N'VINCOM TRÀ VINH',N'31 TRẦN HỮU NGHỊ - PHƯỜNG BÌNH THỌ - QUẬN THỦ ĐỨC - TP HỒ CHÍ MINH')
+insert into KHACH values ('0772708888',N'TRẦN THỊ BÍCH TIỀN',N'KHÁCH SẠN CỬU LONG',N'SỐ 86 NGUYỄN CHÍ THANH - QUẬN 5 - TP HỒ CHÍ MINH')
+insert into KHACH values ('0362101010',N'THẠCH THANH SƠN',N'VNPT TRÀ VINH',N'285 CÁCH MẠNG THÁNG 8 - PHƯỜNG 12 - QUẬN 10 - TP HỒ CHÍ MINH')
+
+insert into KHACH values ('0989916375',N'NGUYỄN THỊ PHƯƠNG DUY',N'ĐẠI HỌC Y DƯỢC TP HỒ CHÍ MÌNH',N'ĐẠI HỌC TRÀ VINH')
+insert into KHACH values ('0836059000',N'KIM THANH PHÚC',N'51 PHẠM NGŨ LÃO - QUẬN GÒ VẤP - TP HỒ CHÍ MINH',N'NHÀ VĂN HÓA TỈNH TRÀ VINH')
+insert into KHACH values ('0835000057',N'NGUYỄN KIM LÝ THANH',N'HẺM 631 - PHAN ĐÌNH PHÙNG - QUẬN TÂN BÌNH - TP HỒ CHÍ MINH',N'58 HÒA LẠC A - HUYỆN CHÂU THÀNH - TRÀ VINH')
+insert into KHACH values ('0835619000',N'VŨ THANH TƯỜNG',N'312 LÝ TỰ TRỌNG - BÌNH HƯNG HÒA - TP HỒ CHÍ MINH',N'TẠP HÁT THÁI BÌNH - TRÀ VINH')
+insert into KHACH values ('0835000061',N'PHẠM HUỲNH THANH NGÂN',N'112 NGUYỄN ĐÌNH CHIỂU - QUẬN BÌNH CHÁNH - TP HỒ CHÍ MINH',N'TRƯỜNG THPT TỈNH TRÀ VINH')
+INSERT INTO KHACH VALUES ('085678909',N'LÝ ANH TUẤN',N'SỐ 85 CẦU ÔNG MÈ - CHÂU THÀNH - TRÀ VINH',N'36 ĐOÀN DỰ - QUẬN BÌNH CHÁNH - TP HỒ CHÍ MINH')
+INSERT INTO KHACH VALUES ('','','','') -- KHÔNG XÓA DÒNG NÀY
+
+/*INSERT CHO BẢNG XE*/
+insert into XE values ('XE001','84-B1.90051','49',N'ĐỎ',N'')
+insert into XE values ('XE002','84-C1.90052','49',N'ĐỎ',N'')
+insert into XE values ('XE003','84-B1.90053','49',N'ĐỎ',N'')
+insert into XE values ('XE004','84-C1.90054','49',N'ĐỎ',N'')
+insert into XE values ('XE005','84-B1.90055','49',N'ĐỎ',N'')
+insert into XE values ('XE006','84-B1.90056','6',N'XANH DƯƠNG',N'')
+insert into XE values ('XE007','84-B1.90057','17',N'XANH DƯƠNG',N'')
+insert into XE values ('XE008','84-B1.90058','37',N'BẠC',N'')
+insert into XE values ('XE009','84-B1.90059','21',N'BẠC',N'')
+insert into XE values ('XE010','84-B1.90060','21',N'TRẮNG VIỀN ĐEN',N'')
+insert into XE values ('XE011','84-B1.90061','31',N'BẠC VIỀN ĐEN',N'')
+insert into XE values ('XE012','84-B1.90062','31',N'BẠC',N'')
+insert into XE values ('XE013','84-B1.90063','31',N'BẠC',N'')
+insert into XE values ('XE014','84-B1.90064','31',N'BẠC',N'')
+insert into XE values ('XE015','84-B1.90065','31',N'BẠC',N'')
+
+/*INSERT CHO BẢNG TÀI XẾ*/
+insert into TAIXE values ('TX001',N'NGUYỄN VĂN TÀI',N'NAM','12/30/1980','334835700','7/1/2010',N'CÔNG AN TỈNH TRÀ VINH',N'TP TRÀ VINH','0934475876','011169077583','2005')
+insert into TAIXE values ('TX002',N'LÂM MINH TÊ',N'NAM','7/26/1975','339807483','9/25/2016',N'CÔNG AN TỈNH TRÀ VINH',N'TIỂU CẦN - TRÀ VINH','0987465374','010987364538','2000')
+insert into TAIXE values ('TX003',N'VÕ ANH KIỆT',N'NAM','3/15/1985','349876538','4/15/2020',N'CÔNG AN TỈNH TRÀ VINH',N'DUYÊN HẢI - TRÀ VINH','0903675394','011483657485','2009')
+insert into TAIXE values ('TX004',N'NGUYỄN MINH TUẤN',N'NAM','8/2/1986','398763908','3/22/2018',N'CÔNG AN TỈNH TRÀ VINH',N'TX DUYÊN HẢI - TRÀ VINH','0324754876','011097638495','2010')
+insert into TAIXE values ('TX005',N'NGUYỄN TRUNG KIÊN',N'NAM','9/21/1988','239747384','5/20/2015',N'CÔNG AN TỈNH TRÀ VINH',N'TP TRÀ VINH','0358974245','011348749503','2015')
+INSERT INTO TAIXE VALUES ('TX006', N'TRẦN BÌNH KHIÊM', N'NAM', '12/3/1983', '460195733', '2/22/2016', N'CÔNG AN TỈNH VĨNH LONG', N'TP VĨNH LONG', '085345565', '011867410943', '2003')
+INSERT INTO TAIXE VALUES ('TX007', N'NGÔ MINH DỰ', N'NAM', '3/5/1979', '334078156', '1/4/2018', N'CÔNG AN TỈNH CÀ MAU', N'MŨI NÉ - CÀ MÀU', '034123456', '867300198765','1998')
+/*INSERT CHO TABLE LỊCH*/
+insert into LICH values ('062020CD001','6/20/2020', '8:00','6/20/2020', '13:00','XE001','TX001','TX005',N'TRÀ VINH',N'')
+insert into LICH values ('062020CD002','6/20/2020', '8:00','6/20/2020', '13:00','XE002','TX002','TX004',N'SÀI GÒN',N'')
+insert into LICH values ('062020CD003','6/20/2020', '16:00','6/20/2020', '21:00','XE003','TX003','TX001',N'SÀI GÒN',N'')
+insert into LICH values ('062120CD001','6/21/2020', '20:00','6/22/2020', '1:00','XE004','TX004','TX003',N'TRÀ VINH',N'')
+insert into LICH values ('062120CD002','6/21/2020', '2:00','6/22/2020', '5:00','XE001','TX002','TX001',N'TRÀ VINH',N'')
+/*INSERT CHO TABLE VÉ*/
+-- CD001 --
+insert into VE values ('001.062020CD001',1,'110000','062020CD001', '0903123978')
+insert into VE values ('002.062020CD001',2,'110000','062020CD001', '0903123978')
+insert into VE values ('003.062020CD001',3,'110000','062020CD001', '0903123978')
+insert into VE values ('004.062020CD001',4,'110000','062020CD001', '0903333444')
+insert into VE values ('005.062020CD001',5,'110000','062020CD001', '0903333444')
+insert into VE values ('006.062020CD001',6,'110000','062020CD001', '0903333444')
+insert into VE values ('007.062020CD001',7,'110000','062020CD001', '0903333444')
+insert into VE values ('008.062020CD001',8,'110000','062020CD001', '0903333444')
+insert into VE values ('009.062020CD001',9,'110000','062020CD001', '')
+insert into VE values ('010.062020CD001',10,'110000','062020CD001', '')
+insert into VE values ('011.062020CD001',11,'110000','062020CD001', '')
+insert into VE values ('012.062020CD001',12,'110000','062020CD001', '')
+insert into VE values ('013.062020CD001',13,'110000','062020CD001', '')
+insert into VE values ('014.062020CD001',14,'110000','062020CD001', '')
+insert into VE values ('015.062020CD001',15,'110000','062020CD001', '')
+insert into VE values ('016.062020CD001',16,'110000','062020CD001', '')
+insert into VE values ('017.062020CD001',17,'110000','062020CD001', '')
+insert into VE values ('018.062020CD001',18,'110000','062020CD001', '')
+insert into VE values ('019.062020CD001',19,'110000','062020CD001', '')
+insert into VE values ('020.062020CD001',20,'110000','062020CD001', '')
+insert into VE values ('021.062020CD001',21,'110000','062020CD001', '')
+insert into VE values ('022.062020CD001',22,'110000','062020CD001', '')
+insert into VE values ('023.062020CD001',23,'110000','062020CD001', '')
+insert into VE values ('024.062020CD001',24,'110000','062020CD001', '')
+insert into VE values ('025.062020CD001',25,'110000','062020CD001', '')
+insert into VE values ('026.062020CD001',26,'110000','062020CD001', '')
+insert into VE values ('027.062020CD001',27,'110000','062020CD001', '')
+insert into VE values ('028.062020CD001',28,'110000','062020CD001', '')
+insert into VE values ('029.062020CD001',29,'110000','062020CD001', '')
+insert into VE values ('030.062020CD001',30,'110000','062020CD001', '')
+insert into VE values ('031.062020CD001',31,'110000','062020CD001', '')
+insert into VE values ('032.062020CD001',32,'110000','062020CD001', '')
+insert into VE values ('033.062020CD001',33,'110000','062020CD001', '')
+insert into VE values ('034.062020CD001',34,'110000','062020CD001', '')
+insert into VE values ('035.062020CD001',35,'110000','062020CD001', '')
+insert into VE values ('036.062020CD001',36,'110000','062020CD001', '')
+insert into VE values ('037.062020CD001',37,'110000','062020CD001', '')
+insert into VE values ('038.062020CD001',38,'110000','062020CD001', '')
+insert into VE values ('039.062020CD001',39,'110000','062020CD001', '')
+insert into VE values ('040.062020CD001',40,'110000','062020CD001', '')
+insert into VE values ('041.062020CD001',41,'110000','062020CD001', '')
+insert into VE values ('042.062020CD001',42,'110000','062020CD001', '')
+insert into VE values ('043.062020CD001',43,'110000','062020CD001', '')
+insert into VE values ('044.062020CD001',44,'110000','062020CD001', '')
+insert into VE values ('045.062020CD001',45,'110000','062020CD001', '')
+insert into VE values ('046.062020CD001',46,'110000','062020CD001', '')
+insert into VE values ('047.062020CD001',47,'110000','062020CD001', '')
+insert into VE values ('048.062020CD001',48,'110000','062020CD001', '')
+insert into VE values ('049.062020CD001',49,'110000','062020CD001', '')
+-- CD002 --
+insert into VE values ('001.062020CD002',1,'90000','062020CD002', '0989916375')
+insert into VE values ('002.062020CD002',2,'90000','062020CD002', '')
+insert into VE values ('003.062020CD002',3,'90000','062020CD002', '')
+insert into VE values ('004.062020CD002',4,'90000','062020CD002', '')
+insert into VE values ('005.062020CD002',5,'90000','062020CD002', '')
+insert into VE values ('006.062020CD002',6,'90000','062020CD002', '')
+insert into VE values ('007.062020CD002',7,'90000','062020CD002', '')
+insert into VE values ('008.062020CD002',8,'90000','062020CD002', '')
+insert into VE values ('009.062020CD002',9,'90000','062020CD002', '')
+insert into VE values ('010.062020CD002',10,'90000','062020CD002', '')
+insert into VE values ('011.062020CD002',11,'90000','062020CD002', '')
+insert into VE values ('012.062020CD002',12,'90000','062020CD002', '')
+insert into VE values ('013.062020CD002',13,'90000','062020CD002', '')
+insert into VE values ('014.062020CD002',14,'90000','062020CD002', '')
+insert into VE values ('015.062020CD002',15,'90000','062020CD002', '')
+insert into VE values ('016.062020CD002',16,'90000','062020CD002', '0989916375')
+insert into VE values ('017.062020CD002',17,'90000','062020CD002', '')
+insert into VE values ('018.062020CD002',18,'90000','062020CD002', '')
+insert into VE values ('019.062020CD002',19,'90000','062020CD002', '')
+insert into VE values ('020.062020CD002',20,'90000','062020CD002', '')
+insert into VE values ('021.062020CD002',21,'90000','062020CD002', '')
+insert into VE values ('022.062020CD002',22,'90000','062020CD002', '')
+insert into VE values ('023.062020CD002',23,'90000','062020CD002', '')
+insert into VE values ('024.062020CD002',24,'90000','062020CD002', '')
+insert into VE values ('025.062020CD002',25,'90000','062020CD002', '')
+insert into VE values ('026.062020CD002',26,'90000','062020CD002', '')
+insert into VE values ('027.062020CD002',27,'90000','062020CD002', '')
+insert into VE values ('028.062020CD002',28,'90000','062020CD002', '')
+insert into VE values ('029.062020CD002',29,'90000','062020CD002', '')
+insert into VE values ('030.062020CD002',30,'90000','062020CD002', '')
+insert into VE values ('031.062020CD002',31,'90000','062020CD002', '')
+insert into VE values ('032.062020CD002',32,'90000','062020CD002', '')
+insert into VE values ('033.062020CD002',33,'90000','062020CD002', '')
+insert into VE values ('034.062020CD002',34,'90000','062020CD002', '')
+insert into VE values ('035.062020CD002',35,'90000','062020CD002', '')
+insert into VE values ('036.062020CD002',36,'90000','062020CD002', '')
+insert into VE values ('037.062020CD002',37,'90000','062020CD002', '')
+insert into VE values ('038.062020CD002',38,'90000','062020CD002', '')
+insert into VE values ('039.062020CD002',39,'90000','062020CD002', '')
+insert into VE values ('040.062020CD002',40,'90000','062020CD002', '')
+insert into VE values ('041.062020CD002',41,'90000','062020CD002', '')
+insert into VE values ('042.062020CD002',42,'90000','062020CD002', '')
+insert into VE values ('043.062020CD002',43,'90000','062020CD002', '')
+insert into VE values ('044.062020CD002',44,'90000','062020CD002', '')
+insert into VE values ('045.062020CD002',45,'90000','062020CD002', '')
+insert into VE values ('046.062020CD002',46,'90000','062020CD002', '')
+insert into VE values ('047.062020CD002',47,'90000','062020CD002', '')
+insert into VE values ('048.062020CD002',48,'90000','062020CD002', '')
+insert into VE values ('049.062020CD002',49,'90000','062020CD002', '')
+
+-- CD003 --
+insert into VE values ('001.062020CD003',1,'130000','062020CD003', '0835000057')
+insert into VE values ('002.062020CD003',2,'130000','062020CD003', '0835000057')
+insert into VE values ('003.062020CD003',3,'130000','062020CD003', '0835000057')
+insert into VE values ('004.062020CD003',4,'130000','062020CD003', '0835000057')
+insert into VE values ('005.062020CD003',5,'130000','062020CD003', '')
+insert into VE values ('006.062020CD003',6,'130000','062020CD003', '')
+insert into VE values ('007.062020CD003',7,'130000','062020CD003', '')
+insert into VE values ('008.062020CD003',8,'130000','062020CD003', '')
+insert into VE values ('009.062020CD003',9,'130000','062020CD003', '')
+insert into VE values ('010.062020CD003',10,'130000','062020CD003', '')
+insert into VE values ('011.062020CD003',11,'130000','062020CD003', '')
+insert into VE values ('012.062020CD003',12,'130000','062020CD003', '')
+insert into VE values ('013.062020CD003',13,'130000','062020CD003', '')
+insert into VE values ('014.062020CD003',14,'130000','062020CD003', '')
+insert into VE values ('015.062020CD003',15,'130000','062020CD003', '')
+insert into VE values ('016.062020CD003',16,'130000','062020CD003', '0835000057')
+insert into VE values ('017.062020CD003',17,'130000','062020CD003', '')
+insert into VE values ('018.062020CD003',18,'130000','062020CD003', '')
+insert into VE values ('019.062020CD003',19,'130000','062020CD003', '')
+insert into VE values ('020.062020CD003',20,'130000','062020CD003', '')
+insert into VE values ('021.062020CD003',21,'130000','062020CD003', '')
+insert into VE values ('022.062020CD003',22,'130000','062020CD003', '')
+insert into VE values ('023.062020CD003',23,'130000','062020CD003', '')
+insert into VE values ('024.062020CD003',24,'130000','062020CD003', '')
+insert into VE values ('025.062020CD003',25,'130000','062020CD003', '')
+insert into VE values ('026.062020CD003',26,'130000','062020CD003', '')
+insert into VE values ('027.062020CD003',27,'130000','062020CD003', '')
+insert into VE values ('028.062020CD003',28,'130000','062020CD003', '')
+insert into VE values ('029.062020CD003',29,'130000','062020CD003', '')
+insert into VE values ('030.062020CD003',30,'130000','062020CD003', '')
+insert into VE values ('031.062020CD003',31,'130000','062020CD003', '')
+insert into VE values ('032.062020CD003',32,'130000','062020CD003', '')
+insert into VE values ('033.062020CD003',33,'130000','062020CD003', '')
+insert into VE values ('034.062020CD003',34,'130000','062020CD003', '')
+insert into VE values ('035.062020CD003',35,'130000','062020CD003', '')
+insert into VE values ('036.062020CD003',36,'130000','062020CD003', '')
+insert into VE values ('037.062020CD003',37,'130000','062020CD003', '')
+insert into VE values ('038.062020CD003',38,'130000','062020CD003', '')
+insert into VE values ('039.062020CD003',39,'130000','062020CD003', '')
+insert into VE values ('040.062020CD003',40,'130000','062020CD003', '0835619000')
+insert into VE values ('041.062020CD003',41,'130000','062020CD003', '0835000061')
+insert into VE values ('042.062020CD003',42,'130000','062020CD003', '')
+insert into VE values ('043.062020CD003',43,'130000','062020CD003', '')
+insert into VE values ('044.062020CD003',44,'130000','062020CD003', '')
+insert into VE values ('045.062020CD003',45,'130000','062020CD003', '')
+insert into VE values ('046.062020CD003',46,'130000','062020CD003', '')
+insert into VE values ('047.062020CD003',47,'130000','062020CD003', '')
+insert into VE values ('048.062020CD003',48,'130000','062020CD003', '')
+insert into VE values ('049.062020CD003',49,'130000','062020CD003', '')
+
+-- CD004 --
+insert into VE values ('001.062120CD001',1,'85000','062120CD001', '0345876822')
+insert into VE values ('002.062120CD001',2,'85000','062120CD001', '0321635189')
+insert into VE values ('003.062120CD001',3,'85000','062120CD001', '0321635189')
+insert into VE values ('004.062120CD001',4,'85000','062120CD001', '0321635189')
+insert into VE values ('005.062120CD001',5,'85000','062120CD001', '0321635189')
+insert into VE values ('006.062120CD001',6,'85000','062120CD001', '0321635189')
+insert into VE values ('007.062120CD001',7,'85000','062120CD001', '0321635189')
+insert into VE values ('008.062120CD001',8,'85000','062120CD001', '0321635189')
+insert into VE values ('009.062120CD001',9,'85000','062120CD001', '0321635189')
+insert into VE values ('010.062120CD001',10,'85000','062120CD001', '0321635189')
+insert into VE values ('011.062120CD001',11,'85000','062120CD001', '')
+insert into VE values ('012.062120CD001',12,'85000','062120CD001', '')
+insert into VE values ('013.062120CD001',13,'85000','062120CD001', '')
+insert into VE values ('014.062120CD001',14,'85000','062120CD001', '')
+insert into VE values ('015.062120CD001',15,'85000','062120CD001', '')
+insert into VE values ('016.062120CD001',16,'85000','062120CD001', '')
+insert into VE values ('017.062120CD001',17,'85000','062120CD001', '')
+insert into VE values ('018.062120CD001',18,'85000','062120CD001', '')
+insert into VE values ('019.062120CD001',19,'85000','062120CD001', '')
+insert into VE values ('020.062120CD001',20,'85000','062120CD001', '')
+insert into VE values ('021.062120CD001',21,'85000','062120CD001', '')
+insert into VE values ('022.062120CD001',22,'85000','062120CD001', '')
+insert into VE values ('023.062120CD001',23,'85000','062120CD001', '')
+insert into VE values ('024.062120CD001',24,'85000','062120CD001', '')
+insert into VE values ('025.062120CD001',25,'85000','062120CD001', '')
+insert into VE values ('026.062120CD001',26,'85000','062120CD001', '')
+insert into VE values ('027.062120CD001',27,'85000','062120CD001', '')
+insert into VE values ('028.062120CD001',28,'85000','062120CD001', '')
+insert into VE values ('029.062120CD001',29,'85000','062120CD001', '')
+insert into VE values ('030.062120CD001',30,'85000','062120CD001', '0321635189')
+insert into VE values ('031.062120CD001',31,'85000','062120CD001', '')
+insert into VE values ('032.062120CD001',32,'85000','062120CD001', '')
+insert into VE values ('033.062120CD001',33,'85000','062120CD001', '')
+insert into VE values ('034.062120CD001',34,'85000','062120CD001', '')
+insert into VE values ('035.062120CD001',35,'85000','062120CD001', '')
+insert into VE values ('036.062120CD001',36,'85000','062120CD001', '')
+insert into VE values ('037.062120CD001',37,'85000','062120CD001', '')
+insert into VE values ('038.062120CD001',38,'85000','062120CD001', '')
+insert into VE values ('039.062120CD001',39,'85000','062120CD001', '')
+insert into VE values ('040.062120CD001',40,'85000','062120CD001', '')
+insert into VE values ('041.062120CD001',41,'85000','062120CD001', '')
+insert into VE values ('042.062120CD001',42,'85000','062120CD001', '')
+insert into VE values ('043.062120CD001',43,'85000','062120CD001', '')
+insert into VE values ('044.062120CD001',44,'85000','062120CD001', '')
+insert into VE values ('045.062120CD001',45,'85000','062120CD001', '')
+insert into VE values ('046.062120CD001',46,'85000','062120CD001', '')
+insert into VE values ('047.062120CD001',47,'85000','062120CD001', '')
+insert into VE values ('048.062120CD001',48,'85000','062120CD001', '')
+insert into VE values ('049.062120CD001',49,'85000','062120CD001', '')
+-- CD005 --
+insert into VE values ('001.062120CD002',1,'110000','062120CD002', '0772708888')
+insert into VE values ('002.062120CD002',2,'110000','062120CD002', '')
+insert into VE values ('003.062120CD002',3,'110000','062120CD002', '')
+insert into VE values ('004.062120CD002',4,'110000','062120CD002', '')
+insert into VE values ('005.062120CD002',5,'110000','062120CD002', '')
+insert into VE values ('006.062120CD002',6,'110000','062120CD002', '')
+insert into VE values ('007.062120CD002',7,'110000','062120CD002', '')
+insert into VE values ('008.062120CD002',8,'110000','062120CD002', '')
+insert into VE values ('009.062120CD002',9,'110000','062120CD002', '')
+insert into VE values ('010.062120CD002',10,'110000','062120CD002', '')
+insert into VE values ('011.062120CD002',11,'110000','062120CD002', '')
+insert into VE values ('012.062120CD002',12,'110000','062120CD002', '')
+insert into VE values ('013.062120CD002',13,'110000','062120CD002', '')
+insert into VE values ('014.062120CD002',14,'110000','062120CD002', '')
+insert into VE values ('015.062120CD002',15,'110000','062120CD002', '')
+insert into VE values ('016.062120CD002',16,'110000','062120CD002', '')
+insert into VE values ('017.062120CD002',17,'110000','062120CD002', '')
+insert into VE values ('018.062120CD002',18,'110000','062120CD002', '')
+insert into VE values ('019.062120CD002',19,'110000','062120CD002', '')
+insert into VE values ('020.062120CD002',20,'110000','062120CD002', '0362101010')
+insert into VE values ('021.062120CD002',21,'110000','062120CD002', '')
+insert into VE values ('022.062120CD002',22,'110000','062120CD002', '')
+insert into VE values ('023.062120CD002',23,'110000','062120CD002', '')
+insert into VE values ('024.062120CD002',24,'110000','062120CD002', '')
+insert into VE values ('025.062120CD002',25,'110000','062120CD002', '')
+insert into VE values ('026.062120CD002',26,'110000','062120CD002', '')
+insert into VE values ('027.062120CD002',27,'110000','062120CD002', '')
+insert into VE values ('028.062120CD002',28,'110000','062120CD002', '')
+insert into VE values ('029.062120CD002',29,'110000','062120CD002', '')
+insert into VE values ('030.062120CD002',30,'110000','062120CD002', '')
+insert into VE values ('031.062120CD002',31,'110000','062120CD002', '')
+insert into VE values ('032.062120CD002',32,'110000','062120CD002', '')
+insert into VE values ('033.062120CD002',33,'110000','062120CD002', '')
+insert into VE values ('034.062120CD002',34,'110000','062120CD002', '')
+insert into VE values ('035.062120CD002',35,'110000','062120CD002', '')
+insert into VE values ('036.062120CD002',36,'110000','062120CD002', '')
+insert into VE values ('037.062120CD002',37,'110000','062120CD002', '')
+insert into VE values ('038.062120CD002',38,'110000','062120CD002', '')
+insert into VE values ('039.062120CD002',39,'110000','062120CD002', '')
+insert into VE values ('040.062120CD002',40,'110000','062120CD002', '')
+insert into VE values ('041.062120CD002',41,'110000','062120CD002', '')
+insert into VE values ('042.062120CD002',42,'110000','062120CD002', '')
+insert into VE values ('043.062120CD002',43,'110000','062120CD002', '')
+insert into VE values ('044.062120CD002',44,'110000','062120CD002', '')
+insert into VE values ('045.062120CD002',45,'110000','062120CD002', '')
+insert into VE values ('046.062120CD002',46,'110000','062120CD002', '')
+insert into VE values ('047.062120CD002',47,'110000','062120CD002', '')
+insert into VE values ('048.062120CD002',48,'110000','062120CD002', '')
+insert into VE values ('049.062120CD002',49,'110000','062120CD002', '')
+/*INSERT CHO TABLE KIỆN HÀNG*/
+insert into KIENHANG values ('0903004023','0380987898',N'NGUYỄN THÀNH ĐẠT',N'NGUYỄN VĂN THÀNH',N'HÀNG DỄ VỠ')
+insert into KIENHANG values ('0903234000','0380008765',N'NGUYỄN VĂN THÔNG',N'NGUYỄN THỊ HỒNG',N'THÙNG HÀNG')
+insert into KIENHANG values ('0903987023','0388900345',N'NGUYỄN VĂN HÒA',N'DƯƠNG HOÀI',N'XE ĐẠP')
+insert into KIENHANG values ('0340987460','0835000061',N'TRƯƠNG VĂN TUẤN',N'NGUYỄN ANH QUỐC',N'THÙNG HÀNG')
+insert into KIENHANG values ('0350987689','0381234000',N'TRẦN THỊ BÉ',N'DƯƠNG VĂN TOÀN',N'THÙNG HÀNG')
+/*INSERT CHO TABLE CHỞ HÀNG*/
+insert into CHOHANG values ('062020CD001','0903004023','0380987898', '1', N'')
+insert into CHOHANG values ('062020CD001','0903234000','0380008765', '2', N'')
+insert into CHOHANG values ('062120CD001','0903987023','0388900345', '1', N'')
+insert into CHOHANG values ('062120CD002','0340987460','0835000061', '4', N'')
+insert into CHOHANG values ('062120CD002','0350987689','0381234000', '3', N'')
+
+select * from CHOHANG
+select * from KIENHANG
+select * from KHACH
+select * from LICH
+select * from TAIXE
+select * from VE
+select * from XE
+GO
+/*====================================================================================*/
+									/********************************************
+									|											|
+									|		CẬP NHẬT THÔNG TIN CỦA TABLE		|
+									|											|
+									********************************************/
+									
+UPDATE TAIXE
+	SET QUEQUAN = N'ĐỒNG NAI'
+	WHERE MATAIXE = 'TX002'
+GO
+UPDATE TAIXE
+	SET QUEQUAN = N'CÀ MAU'
+	WHERE MATAIXE = 'TX003'
+GO
+/*====================================================================================*/
+									/********************************
+									|								|
+									|		TẠO VIEW CHO DSDL		|
+									|								|
+									********************************/
+GO
+CREATE VIEW V_KHACH
+	AS SELECT*FROM KHACH
+GO
+CREATE VIEW V_XE
+	AS SELECT*FROM XE
+GO
+CREATE VIEW V_TAIXE
+	AS SELECT TAIXE.MATAIXE, TAIXE.HOTEN, TAIXE.GIOITINH, TAIXE.SDT FROM TAIXE
+GO
+CREATE VIEW V_LICH
+	AS SELECT * FROM LICH
+GO
+CREATE VIEW V_VE
+	AS SELECT * FROM VE
+GO
+CREATE VIEW V_KIENHANG
+	AS SELECT * FROM KIENHANG
+GO
+CREATE VIEW V_CHOHANG
+	AS SELECT * FROM CHOHANG
+GO
+
+SELECT * FROM V_KHACH
+SELECT * FROM V_XE
+SELECT * FROM V_TAIXE
+SELECT * FROM V_LICH
+SELECT * FROM V_VE
+SELECT * FROM V_KIENHANG
+SELECT * FROM V_CHOHANG
+/*====================================================================================*/
+									/************************************
+									|									|
+									|		TẠO PROCUDURE CHO DSDL		|
+									|									|
+									************************************/
+
+/*====================================================================================*/
+				/********************
+				|					|
+				|		TÀI XẾ		|
+				|					|
+				********************/
+									
+-- SỬA THÔNG TIN TÀI XẾ
+GO
+CREATE PROC EDIT_TAIXE
+	@MATAIXE CHAR(5),
+	@HOTEN NVARCHAR(50),
+	@GIOITINH NVARCHAR(4),
+	@NGAYSINH DATE,
+	@SOCMND CHAR(9),
+	@NGAYCAP DATE,
+	@NOICAP NVARCHAR(50),
+	@QUEQUAN NVARCHAR(50),
+	@SDT CHAR(10),
+	@BANGLAIXE CHAR(12),
+	@NAMVAONGHE DATE
+AS
+BEGIN
+	IF EXISTS
+	(
+		SELECT TAIXE.MATAIXE FROM TAIXE
+			WHERE TAIXE.MATAIXE = @MATAIXE
+	)
+		BEGIN
+			UPDATE TAIXE
+				SET
+					HOTEN = @HOTEN,
+					GIOITINH = @GIOITINH,
+					NGAYSINH = @NGAYSINH,
+					SOCMND = @SOCMND,
+					NGAYCAP = @NGAYCAP,
+					NOICAP = @NOICAP,
+					QUEQUAN = @QUEQUAN,
+					SDT = @SDT,
+					BANGLAIXE = @BANGLAIXE,
+					NAMVAONGHE = @NAMVAONGHE
+				WHERE TAIXE.MATAIXE = @MATAIXE
+			SELECT * FROM TAIXE
+				WHERE TAIXE.MATAIXE = @MATAIXE
+		END
+	ELSE PRINT N'KHÔNG TỒN TẠI TÀI XẾ CÓ MÃ ' + @MATAIXE
+END
+GO
+
+EXEC ADD_EDIT_TAIXE 'TX005', N'NGUYỄN THỊ KIM TUYỀN',N'NỮ', '04/23/1995', '334953905', '12/12/2008', N'CÔNG AN TỈNH TRÀ VINH', N'THỊ XÃ DUYÊN HẢI - TRÀ VINH', '0351111111', '456789012345', '5/12/2015'
+
+-- THÊM THÔNG TIN TÀI XẾ
+GO
+CREATE PROC ADD_TAIXE
+	@MATAIXE CHAR(5),
+	@HOTEN NVARCHAR(50),
+	@GIOITINH NVARCHAR(4),
+	@NGAYSINH DATE,
+	@SOCMND CHAR(9),
+	@NGAYCAP DATE,
+	@NOICAP NVARCHAR(50),
+	@QUEQUAN NVARCHAR(50),
+	@SDT CHAR(10),
+	@BANGLAIXE CHAR(12),
+	@NAMVAONGHE DATE
+AS
+BEGIN
+	IF NOT EXISTS
+	(
+		SELECT TAIXE.MATAIXE FROM TAIXE
+			WHERE TAIXE.MATAIXE = @MATAIXE
+	)
+		BEGIN
+			INSERT INTO TAIXE VALUES (@MATAIXE, @HOTEN, @GIOITINH, @NGAYSINH, @SOCMND, @NGAYCAP, @NOICAP, @QUEQUAN, @SDT, @BANGLAIXE, @NAMVAONGHE)
+			SELECT * FROM TAIXE
+				WHERE TAIXE.MATAIXE = @MATAIXE	
+		END
+	ELSE PRINT N'TÀI XẾ ĐÃ TỒN TẠI.'
+END
+GO
+
+-- XÓA TÀI XẾ KHỎI DATABASE
+GO
+CREATE PROC DEL_TAIXE
+	@MATAIXE CHAR(5)
+AS
+BEGIN
+	IF EXISTS
+	(
+		SELECT TAIXE.MATAIXE FROM TAIXE
+			WHERE TAIXE.MATAIXE = @MATAIXE
+	)
+		BEGIN
+			DELETE FROM TAIXE
+				WHERE TAIXE.MATAIXE = @MATAIXE
+			SET NOCOUNT ON
+			PRINT N'XÓA THÀNH CÔNG'
+		END
+	ELSE
+		PRINT N'KHÔNG TỒN TẠI TÀI XẾ CÓ MÃ ' + @MATAIXE
+END
+GO
+
+EXEC DEL_TAIXE 'TX006'
+SET NOCOUNT ON
+
+-- TÌM THÔNG TIN TÀI XẾ
+GO
+CREATE PROC SEARCH_TAIXE
+	@MATAIXE CHAR(5)
+AS
+BEGIN
+	IF(EXISTS(SELECT TAIXE.MATAIXE FROM TAIXE WHERE TAIXE.MATAIXE = @MATAIXE))
+		SELECT TAIXE.MATAIXE FROM TAIXE WHERE TAIXE.MATAIXE = @MATAIXE
+	ELSE
+		PRINT N'KHÔNG TỒN TẠI ' + @MATAIXE
+END
+GO
+/*====================================================================================*/
+				/********************
+				|					|
+				|		KHÁCH		|
+				|					|
+				********************/
+				
+-- TÌM THÔNG TIN KHÁCH BẰNG SỐ ĐIỆN THOẠI
+GO
+CREATE PROC SEARCH_KHACH_SDT
+	@SDT VARCHAR(10),
+	@MACHUYENDI CHAR(11)
+AS
+BEGIN
+	IF EXISTS
+	(
+		SELECT KHACH.SDT FROM KHACH, LICH
+			WHERE KHACH.SDT LIKE '%' + @SDT + '%'
+				AND LICH.MACHUYENDI = @MACHUYENDI
+	)
+		SELECT * FROM KHACH, LICH
+			WHERE KHACH.SDT LIKE '%' + @SDT + '%'
+		AND LICH.MACHUYENDI = @MACHUYENDI
+	ELSE
+		PRINT N'KHÔNG CÓ KHÁCH HÀNG NÀO CÓ SĐT ' + @SDT + ' ĐI CHUYẾN ' + @MACHUYENDI
+END
+GO
+
+EXEC SEARCH_KHACH_SDT '0000'
+
+-- TÌM THÔNG TIN KHÁCH NƠI ĐÓN
+GO
+CREATE PROC SEARCH_KHACH_NOIDON
+	@NOIDON NVARCHAR(200),
+	@MACHUYENDI CHAR(11)
+AS
+BEGIN
+	IF EXISTS
+	(
+		SELECT KHACH.NOIDON FROM KHACH, LICH
+			WHERE KHACH.NOIDON LIKE '%' + @NOIDON + '%'
+				AND LICH.MACHUYENDI = @MACHUYENDI
+	)
+		SELECT * FROM KHACH, LICH
+			WHERE KHACH.NOIDON LIKE '%' + @NOIDON + '%'
+		AND LICH.MACHUYENDI = @MACHUYENDI
+	ELSE
+		PRINT N'KHÔNG CÓ KHÁCH HÀNG NÀO CÓ NƠI ĐÓN LÀ ' + @NOIDON + N' ĐI CHUYẾN ' + @MACHUYENDI
+END
+GO
+
+EXEC SEARCH_KHACH_NOIDON N'KHÁCH SẠN', '062120CD001'
+-- TÌM THÔNG TIN KHÁCH NƠI ĐƯA
+GO
+CREATE PROC SEARCH_KHACH_NOIDUA
+	@NAME NVARCHAR(200),
+	@MACHUYENDI CHAR(11)
+AS
+BEGIN
+	IF EXISTS
+	(
+		SELECT KHACH.NOIDON FROM KHACH, LICH
+			WHERE KHACH.NOIDUA LIKE '%' + @NAME + '%'
+				AND LICH.MACHUYENDI = @MACHUYENDI
+	)
+		SELECT * FROM KHACH, LICH
+			WHERE KHACH.NOIDUA LIKE '%' + @NAME + '%'
+				AND LICH.MACHUYENDI = @MACHUYENDI
+	ELSE
+		PRINT N'KHÔNG CÓ KHÁCH HÀNG NÀO CÓ NƠI ĐƯA LÀ ' + @NAME
+END
+GO
+
+EXEC SEARCH_KHACH_NOIDUA N'BỆNH VIỆN'
+-- TÌM THÔNG TIN CỦA KHÁCH BẰNG MÃ CHUYẾN ĐI
+GO
+CREATE PROC SEARCH_KHACH_LICH
+	@MACHUYENDI VARCHAR(11)
+AS
+BEGIN
+	IF EXISTS
+	(
+		SELECT LICH.MACHUYENDI FROM LICH
+			WHERE LICH.MACHUYENDI LIKE '%' + @MACHUYENDI + '%'
+	)
+		SELECT * FROM KHACH
+			WHERE KHACH.SDT IN
+			(				
+				SELECT VE.SDT FROM VE
+					WHERE VE.MASOVE IN
+					(
+						SELECT VE.MASOVE FROM VE
+							WHERE VE.MACHUYENDI = @MACHUYENDI
+					)
+			)
+	ELSE
+		PRINT N'KHÔNG TỒN TẠI CHUYẾN ' + @MACHUYENDI
+END
+GO
+
+EXEC SEARCH_KHACH_LICH '062020CD004'
+-------------------------------------------------------------------------------------------------------------------------
+
+-- SỬA THÔNG TIN KHÁCH HÀNG
+GO
+CREATE PROC EDIT_KHACHHANG
+	@SDT CHAR(10),
+	@HOTEN NVARCHAR(100),
+	@NOIDON NVARCHAR(100),
+	@NOIDUA NVARCHAR(100)
+AS
+BEGIN
+	IF(EXISTS(SELECT KHACH.SDT FROM KHACH WHERE KHACH.SDT = @SDT))
+		BEGIN
+			UPDATE KHACH
+				SET
+					HOTEN = @HOTEN,
+					NOIDON = @NOIDON,
+					NOIDUA = @NOIDUA
+				WHERE KHACH.SDT = @SDT
+			SELECT * FROM KHACH
+				WHERE KHACH.SDT = @SDT
+		END
+	ELSE
+		PRINT N'KHÁCH HÀNG CÓ SĐT ' + @SDT + N' KHÔNG TỒN TẠI'
+END
+
+-- THÊM THÔNG TIN KHÁCH HÀNG
+GO
+CREATE PROC ADD_KHACHHANG
+	@SDT CHAR(10),
+	@HOTEN NVARCHAR(100),
+	@NOIDON NVARCHAR(100),
+	@NOIDUA NVARCHAR(100)
+AS
+BEGIN
+	IF(EXISTS(SELECT KHACH.SDT FROM KHACH WHERE KHACH.SDT = @SDT))
+		BEGIN
+			EXEC EDIT_KHACHHANG @SDT, @HOTEN, @NOIDON, @NOIDUA
+		END
+	ELSE
+		BEGIN
+			INSERT INTO KHACH VALUES (@SDT, @HOTEN, @NOIDON, @NOIDUA)
+			SELECT * FROM KHACH
+				WHERE KHACH.SDT = @SDT
+		END
+END
+GO
+EXEC ADD_KHACHHANG '0123456789', N'NGUYỄN THIỆN NHẬT', N'BỆNH VIỆN CHỠ RẪY', N'AO BÀ 1OM'
+EXEC EDIT_KHACHHANG '0123456789', N'NGUYỄN THIỆN NHẬT', N'BỆNH VIỆN CHỠ RẪY', N'AO BÀ KHÔNG OM'
+
+-- XÓA KHÁCH HÀNG KHỎI DATABASE
+GO
+CREATE PROC DEL_KHACHHANG
+	@SDT CHAR(10)
+AS
+BEGIN
+	IF EXISTS
+	(
+		SELECT KHACH.SDT FROM KHACH
+			WHERE KHACH.SDT = @SDT
+	)
+		BEGIN
+			SET NOCOUNT ON
+			UPDATE VE
+				SET
+					SDT = NULL
+				WHERE VE.SDT = @SDT
+			DELETE FROM KHACH
+				WHERE KHACH.SDT = @SDT
+			PRINT N'XÓA THÀNH CÔNG'
+		END
+		
+	ELSE
+		PRINT N'SỐ ĐIỆN THOẠI ' + @SDT + N' KHÔNG TỒN TẠI'
+END
+GO
+
+EXEC ADD_KHACHHANG '0123456789', N'NGUYỄN THIỆN NHẬT', N'BỆNH VIỆN CHỠ RẪY', N'AO BÀ 1OM'
+EXEC MUAVE '0123456789', N'NGUYỄN THIỆN NHẬT', N'BỆNH VIỆN CHỠ RẪY', N'ÀO BBAF 1OM',19,'062120CD001'
+EXEC DEL_KHACHHANG '0123456789'
+
+SELECT * FROM KHACH 
+
+/*====================================================================================*/
+				/********************
+				|					|
+				|		  XE		|
+				|					|
+				********************/
+									
+		
+-- TÌM THÔNG TIN CỦA XE THEO SỐ HIỆU
+GO
+CREATE PROC SEARCH_XE_ID
+	@ID VARCHAR(5)
+AS
+BEGIN
+	IF EXISTS
+	(
+		SELECT XE.SOHIEUXE FROM XE
+			WHERE XE.SOHIEUXE LIKE '%' + @ID + '%'
+	)
+		SELECT * FROM XE
+			WHERE XE.SOHIEUXE LIKE '%' + @ID + '%'
+	ELSE
+		PRINT N'KHÔNG CÓ BẤT KỲ XE NÀO CÓ SỐ HIỆU ' + @ID
+END
+GO
+
+EXEC SEARCH_XE_ID '1'
+
+--TÌM XE THEO BẢNG SỐ
+GO
+CREATE PROC SEARCH_XE_BANGSO
+	@BANGSO VARCHAR(11)
+AS
+BEGIN
+	IF EXISTS
+	(
+		SELECT * FROM XE
+			WHERE BANGSOXE LIKE '%' + @BANGSO + '%'
+	)
+		SELECT * FROM XE
+			WHERE BANGSOXE LIKE '%' + @BANGSO + '%'
+	ELSE
+		PRINT N'KHÔNG CÓ BẤT KỲ XE NÀO CÓ BẢNG SỐ ' + @BANGSO
+END
+GO
+
+EXEC SEARCH_XE_BANGSO '55'
+-----------------------------------------------------------------------------------------------------------------------
+-- THÊM THÔNG TIN XE
+GO
+CREATE PROC ADD_XE
+	@SOHIEUXE CHAR(5),
+	@BANGSOXE CHAR(11),
+	@SOGHE TINYINT,
+	@MAU NVARCHAR(15),
+	@GHICHU NVARCHAR(100)
+AS
+BEGIN
+	IF NOT EXISTS
+	(
+		SELECT XE.SOHIEUXE FROM XE
+			WHERE XE.SOHIEUXE = @SOHIEUXE
+	)
+		BEGIN
+			INSERT INTO XE VALUES (@SOHIEUXE, @BANGSOXE, @SOGHE, @MAU, @GHICHU)
+			SELECT * FROM XE
+			WHERE XE.SOHIEUXE = @SOHIEUXE
+		END
+	ELSE
+		PRINT N'XE ĐÃ TỒN TẠI'
+END
+GO
+
+CREATE PROC EDIT_XE
+	@SOHIEUXE CHAR(5),
+	@BANGSOXE CHAR(11),
+	@SOGHE TINYINT,
+	@MAU NVARCHAR(15),
+	@GHICHU NVARCHAR(100)
+AS
+BEGIN
+	IF EXISTS
+	(
+		SELECT XE.SOHIEUXE FROM XE
+			WHERE XE.SOHIEUXE = @SOHIEUXE
+	)
+		BEGIN
+			UPDATE XE
+				SET
+					XE.BANGSOXE = @BANGSOXE,
+					XE.SOGHE = @SOGHE,
+					XE.MAU = @MAU,
+					XE.GHICHU = @GHICHU
+				WHERE XE.SOHIEUXE = @SOHIEUXE
+			SELECT * FROM XE
+				WHERE XE.SOHIEUXE = @SOHIEUXE
+		END
+	ELSE
+		PRINT N'XE KHÔNG TỒN TẠI.'
+END
+GO
+
+EXEC ADD_XE 'XA000', '84-A1.00000', 35, N'TÍM', N''
+EXEC EDIT_XE 'XA011', '84-A1.00000', 35, N'ĐỎ', N''
+-- XÓA THÔNG TIN XE KHỎI DATABASE
+GO
+CREATE PROC DEL_XE
+	@SOHIEUXE CHAR(5)
+AS
+BEGIN
+	IF EXISTS
+	(
+		SELECT XE.SOHIEUXE FROM XE
+			WHERE XE.SOHIEUXE = @SOHIEUXE
+	)
+		BEGIN
+			DELETE FROM XE
+				WHERE XE.SOHIEUXE = @SOHIEUXE
+			SELECT * FROM XE
+		END
+	ELSE
+		PRINT N'KHÔNG TỒN TẠI XE CÓ SỐ HIỆU ' + @SOHIEUXE
+END
+GO
+
+EXEC DEL_XE 'XA000'
+/*====================================================================================*/
+				/********************
+				|					|
+				|		LỊCH		|
+				|					|
+				********************/
+									
+
+-- TÌM THÔNG TIN LỊCH BẰNG MÃ CHUYẾN ĐI
+GO
+CREATE PROC SEARCH_LICH
+	@NGAY NVARCHAR(10)
+AS
+BEGIN
+	IF EXISTS
+	(
+		SELECT * FROM LICH
+			WHERE LICH.NGAYDI = CAST(@NGAY AS DATE)
+	)
+		SELECT * FROM LICH
+			WHERE LICH.NGAYDI = CAST(@NGAY AS DATE)
+	ELSE
+		PRINT N'NGÀY ' + @NGAY + N' KHÔNG CÓ LỊCH' 
+END
+GO
+
+EXEC SEARCH_LICH '06/21/2020'
+-- TÌM THÔNG TIN LỊCH BẰNG SỐ HIỆU XE
+GO
+CREATE PROC SEARCH_LICH_XE
+	@XE VARCHAR(5)
+AS
+BEGIN
+	IF EXISTS
+	(
+		SELECT * FROM LICH
+			WHERE LICH.SOHIEUXE LIKE '%' + @XE + '%'
+	)
+		SELECT * FROM LICH
+			WHERE LICH.SOHIEUXE LIKE '%' + @XE + '%'
+	ELSE
+		PRINT N'XE ' + @XE + N' KHÔNG CÓ LỊCH'
+END
+GO
+
+EXEC SEARCH_LICH_XE '002'
+-- TÌM THÔNG TIN LỊCH BẰNG MÃ TÀI XẾ
+GO
+CREATE PROC SEARCH_LICH_TAIXE
+	@ID VARCHAR(5)
+AS
+BEGIN
+	IF EXISTS
+	(
+		SELECT * FROM LICH
+			WHERE
+			(
+				LICH.MATAIXECHINH LIKE '%' + @ID + '%'
+				OR LICH.MATAIXEPHU LIKE '%' + @ID + '%'
+			)
+	)
+			SELECT * FROM LICH
+				WHERE
+				(
+					LICH.MATAIXECHINH LIKE '%' + @ID + '%'
+					OR LICH.MATAIXEPHU LIKE '%' + @ID + '%'
+				)
+	ELSE
+		PRINT N'TÀI XẾ CÓ MÃ ' + @ID + N'KHÔNG CÓ LỊCH'
+END
+GO
+
+EXEC SEARCH_LICH_TAIXE '001'
+
+--------------------------------------------------------------------------------------------------------------
+-- SỬA THÔNG TIN LỊCH
+GO
+CREATE PROC EDIT_LICH
+	@MACHUYENDI CHAR(11),
+	@NGAYDI DATE,
+	@GIODI TIME,
+	@NGAYDEN DATE,
+	@GIODEN TIME,
+	@SOHIEUXE CHAR(5),
+	@MATAIXECHINH CHAR(5),
+	@MATAIXEPHU CHAR(5),
+	@KHOIHANH NVARCHAR(20),
+	@GHICHU NVARCHAR(50)
+AS
+BEGIN
+	IF EXISTS
+	(
+		SELECT LICH.MACHUYENDI FROM LICH
+			WHERE LICH.MACHUYENDI = @MACHUYENDI
+	)
+		BEGIN
+			UPDATE LICH
+				SET
+					
+					GIODI = @GIODI,
+					GIODEN = @GIODEN,
+					SOHIEUXE = @SOHIEUXE,
+					MATAIXECHINH = @MATAIXECHINH,
+					MATAIXEPHU = @MATAIXEPHU,
+					KHOIHANH = @KHOIHANH,
+					GHICHU = @GHICHU
+				WHERE LICH.MACHUYENDI = @MACHUYENDI
+			SELECT * FROM LICH
+				WHERE LICH.MACHUYENDI = @MACHUYENDI
+		END
+	ELSE
+		PRINT N'KHÔNG TỒN TẠI CHUYẾN ' + @MACHUYENDI
+END
+GO
+
+GO
+CREATE PROC ADD_LICH
+	@MACHUYENDI CHAR(11),
+	@NGAYDI DATE,
+	@GIODI TIME,
+	@NGAYDEN DATE,
+	@GIODEN TIME,
+	@SOHIEUXE CHAR(5),
+	@MATAIXECHINH CHAR(5),
+	@MATAIXEPHU CHAR(5),
+	@KHOIHANH NVARCHAR(20),
+	@GHICHU NVARCHAR(50)
+AS
+BEGIN
+	IF NOT EXISTS
+	(
+		SELECT LICH.MACHUYENDI FROM LICH
+			WHERE LICH.MACHUYENDI = @MACHUYENDI
+	)
+		BEGIN
+			INSERT INTO LICH VALUES (@MACHUYENDI, @NGAYDI,@GIODI, @NGAYDEN,@GIODEN, @SOHIEUXE, @MATAIXECHINH, @MATAIXEPHU, @KHOIHANH, @GHICHU)
+			SELECT * FROM LICH
+				WHERE LICH.MACHUYENDI = @MACHUYENDI		
+		END
+	ELSE
+		PRINT N'CHUYẾN ' + @MACHUYENDI + N' ĐÃ TỒN TẠI'
+END
+GO
+
+EXEC EDIT_LICH '062220CD12','06/22/2020','10:30', '06/22/2020','14:50', 'XE001', 'TX003', 'TX004', 'TRÀ VINH', N''
+EXEC ADD_LICH '062220CD11','06/22/2020','10:30', '06/22/2020',' 14:50', 'XE001', 'TX003', 'TX004', 'TRÀ VINH', N''
+
+-- XÓA LỊCH
+GO
+CREATE PROC DEL_LICH
+	@MACHUYENDI CHAR(11)
+AS
+BEGIN
+	IF EXISTS
+	(
+		SELECT LICH.MACHUYENDI FROM LICH
+			WHERE LICH.MACHUYENDI = @MACHUYENDI
+	)
+		BEGIN
+			DELETE FROM LICH
+				WHERE LICH.MACHUYENDI = @MACHUYENDI
+			SET NOCOUNT ON
+			DELETE FROM VE
+				WHERE VE.MACHUYENDI = @MACHUYENDI
+			SET NOCOUNT ON
+			PRINT N'XÓA THÀNH CÔNG'
+		END
+	ELSE
+		PRINT N'KHÔNG TỒN TẠI CHUYẾN ' + @MACHUYENDI
+END
+GO
+
+EXEC DEL_LICH '062220CD01'
+SET NOCOUNT ON
+/*====================================================================================*/
+				/********************
+				|					|
+				|		  VÉ   		|
+				|					|
+				********************/
+-- GIÁ TIỀN VÉ
+GO
+CREATE PROC GIAVE
+	@MACHUYENDI CHAR(11)
+AS
+BEGIN
+	IF(EXISTS(SELECT LICH.MACHUYENDI FROM LICH WHERE LICH.MACHUYENDI = @MACHUYENDI))
+		BEGIN
+			DECLARE @GIATIEN INT
+			DECLARE @XE CHAR(5)
+			SET @XE = (SELECT LICH.SOHIEUXE FROM LICH WHERE LICH.MACHUYENDI = @MACHUYENDI)
+			IF(@XE = 'XE001')
+				 SET @GIATIEN =110000
+			IF(@XE = 'XE002')
+				 SET @GIATIEN = 90000
+			IF(@XE = 'XE003')
+				SET @GIATIEN = 85000
+			IF(@XE = 'XE004')
+				SET @GIATIEN = 95000
+			IF(@XE = 'XE005')
+				SET @GIATIEN = 125000
+			IF(@XE = 'XE006')
+				SET @GIATIEN = 55000
+			IF(@XE = 'XE007')
+				SET @GIATIEN = 73000
+			IF(@XE = 'XE008')
+				SET @GIATIEN = 105000
+			IF(@XE = 'XE009')
+				SET @GIATIEN = 123000
+			IF(@XE = 'XE010')
+				SET @GIATIEN = 135000
+			RETURN @GIATIEN
+		END
+	ELSE
+		PRINT N'KHÔNG TỒN TẠI CHUYẾN ' + @MACHUYENDI
+END
+GO
+
+
+EXEC GIAVE '062120CD001'
+
+-- THÊM VÉ
+GO
+CREATE PROC ADD_VE
+	@MASOVE CHAR(15),
+	@SOGHE TINYINT,
+	@MACHUYENDI CHAR(11)
+AS 
+BEGIN
+	IF NOT EXISTS 
+	(
+		SELECT VE.MASOVE, VE.MACHUYENDI FROM VE WHERE VE.MASOVE = @MASOVE AND VE.MACHUYENDI = @MACHUYENDI
+	)
+		BEGIN
+			IF EXISTS 
+			(
+				SELECT LICH.MACHUYENDI FROM LICH WHERE LICH.MACHUYENDI = @MACHUYENDI
+			)
+				BEGIN
+					DECLARE @GIA INT
+					EXEC @GIA = GIAVE @MACHUYENDI
+					INSERT INTO VE VALUES (@MASOVE,@SOGHE,@GIA,@MACHUYENDI, '')
+				END
+			ELSE 
+				PRINT N'KHÔNG TỒN TẠI CHUYẾN ' + @MACHUYENDI
+		END
+	ELSE PRINT N'VÉ ' + @MASOVE + N' ĐÃ TỒN TẠI TRONG CHUYẾN ' + @MACHUYENDI
+END
+
+GO
+CREATE PROC EDIT_VE
+	@MASOVE CHAR(15),
+	@SOGHE TINYINT,
+	@MACHUYENDI CHAR(11),
+	@SDT CHAR(10)
+AS 
+BEGIN
+	IF EXISTS 
+	(
+		SELECT VE.MASOVE, VE.MACHUYENDI FROM VE WHERE VE.MASOVE = @MASOVE AND VE.MACHUYENDI = @MACHUYENDI
+	)
+		BEGIN
+			DECLARE @GIA INT
+			EXEC @GIA = GIAVE @MACHUYENDI	
+			UPDATE VE
+				SET 
+					SOGHE = @SOGHE,
+					GIA = @GIA,
+					SDT = @SDT
+				WHERE MASOVE = @MASOVE AND MACHUYENDI = @MACHUYENDI
+			SELECT * FROM VE
+				WHERE VE.MASOVE = @MASOVE
+		END
+	ELSE PRINT N'KHÔNG TỒN TẠI VÉ ' + @MASOVE + N' VỚI MÃ CHUYẾN ĐI ' + @MACHUYENDI 
+END
+
+GO
+CREATE PROC DEL_VE
+	@MASOVE CHAR(15),
+	@MACHUYENDI CHAR(11)
+AS 
+BEGIN
+	IF EXISTS 
+	(
+		SELECT VE.MASOVE, VE.MACHUYENDI FROM VE WHERE VE.MASOVE = @MASOVE AND VE.MACHUYENDI = @MACHUYENDI
+	)
+		BEGIN
+			DELETE FROM VE
+			WHERE MASOVE = @MASOVE AND MACHUYENDI = @MACHUYENDI
+		END
+	ELSE PRINT N'KHÔNG TỒN TẠI VÉ ' + @MASOVE + N' VỚI MÃ CHUYẾN ĐI ' + @MACHUYENDI 
+END
+GO
+
+EXEC ADD_VE '001.062020CD001',1,'062020CD001'
+EXEC EDIT_VE '052.062020CD001',53,'062020CD001', ''
+EXEC DEL_VE '052.062020CD001','062020CD001'
+/*====================================================================================*/
+				/********************
+				|					|
+				|		MUA VÉ		|
+				|					|
+				********************/
+									
+-- THÊM KHÁCH HÀNG MUA VÉ
+
+GO
+CREATE PROC MUAVE
+	@SDT CHAR (10),
+	@HOTEN NVARCHAR(50),
+	@NOIDON NVARCHAR(100),
+	@NOIDUA NVARCHAR(100),
+	@SOGHE TINYINT,
+	@MACHUYENDI CHAR(11)
+AS
+BEGIN
+	IF(EXISTS(SELECT LICH.MACHUYENDI FROM LICH WHERE LICH.MACHUYENDI = @MACHUYENDI))
+		BEGIN
+			IF(NOT EXISTS(SELECT KHACH.SDT FROM KHACH WHERE KHACH.SDT = @SDT))
+				EXEC ADD_KHACHHANG @SDT, @HOTEN, @NOIDON, @NOIDUA
+			ELSE
+				EXEC EDIT_KHACHHANG @SDT, @HOTEN, @NOIDON, @NOIDUA
+			DECLARE @MASOVE CHAR(15)
+			SET @MASOVE = (SELECT VE.MASOVE FROM VE WHERE VE.MACHUYENDI = @MACHUYENDI AND VE.SOGHE = @SOGHE)
+			EXEC EDIT_VE @MASOVE, @SOGHE, @MACHUYENDI, @SDT
+		END
+	ELSE
+		PRINT N'KHÔNG TỒN TẠI CHUYẾN ' + @MACHUYENDI
+END
+GO
+
+EXEC MUAVE '111111119', N'NGUYỄN TRẦN BBBB', N'SAO MỘC', N'MẶT TRĂNG', 33, '062120CD002'
+
+-- SỬA THÔNG TIN MUA VÉ CỦA KHÁCH
+GO
+CREATE PROC SUAVE
+	@SDT CHAR(10),
+	@HOTEN NVARCHAR(50),
+	@SOGHE TINYINT,
+	@MACHUYENDI CHAR(11)
+AS
+BEGIN
+	IF(EXISTS(SELECT VE.MACHUYENDI FROM VE WHERE VE.MACHUYENDI = @MACHUYENDI))
+		BEGIN
+			IF(EXISTS(SELECT KHACH.SDT FROM KHACH WHERE KHACH.SDT = @SDT))
+				BEGIN
+					DECLARE @MASOVE CHAR(15)
+					SET @MASOVE = (SELECT VE.MASOVE FROM VE WHERE VE.SOGHE = @SOGHE AND VE.MACHUYENDI = @MACHUYENDI)
+					EXEC EDIT_VE @MASOVE, @SOGHE, @MACHUYENDI, @SDT
+				END
+			ELSE
+				PRINT N'KHÔNG TỒN TẠI SĐT ' + @SDT
+		END
+	ELSE
+		PRINT N'KHÔNG TỒN TẠI CHUYẾN ' + @MACHUYENDI
+END
+GO
+
+EXEC SUAVE '111111119', N'NGUYỄN TRẦN BBBB', 35, '062120CD002'
+
+-- XÓA THÔNG TIN VÉ KHÁCH HÀNG ĐÃ MUA ******************************************************************************************
+GO
+CREATE PROC XOAVE
+	@SDT CHAR(10),
+	@MACHUYENDI CHAR(11)
+AS
+BEGIN
+	IF(EXISTS(SELECT KHACH.SDT FROM KHACH WHERE KHACH.SDT = @SDT))
+		BEGIN
+			IF(EXISTS(SELECT LICH.MACHUYENDI FROM LICH WHERE LICH.MACHUYENDI = @MACHUYENDI))
+				BEGIN
+
+					UPDATE VE
+						SET
+							SDT = ''
+						WHERE VE.MASOVE IN 
+						(
+							SELECT VE.MASOVE FROM VE
+								WHERE VE.SDT = @SDT 
+									AND VE.MACHUYENDI = @MACHUYENDI
+						)
+						AND VE.MACHUYENDI = @MACHUYENDI
+					SET NOCOUNT ON
+					PRINT N'XÓA THÀNH CÔNG'
+				END
+			ELSE
+				PRINT N'KHÔNG TỒN TẠI CHUYẾN ' + @MACHUYENDI
+		END
+	ELSE
+		PRINT N'KHÔNG TỒN TẠI SĐT ' + @SDT
+END
+GO
+
+EXEC XOAVE '111111119', '062120CD002'
+
+-- TÌM VÉ MÀ KHÁCH ĐÃ MUA
+GO
+CREATE PROC SEARCH_MUAVE
+	@SDT CHAR(10),
+	@NGAYDI NVARCHAR(10)
+AS
+BEGIN
+	IF EXISTS
+	(
+		SELECT LICH.NGAYDI FROM LICH
+			WHERE LICH.NGAYDI = @NGAYDI
+	)
+		BEGIN
+			IF EXISTS
+			(
+				SELECT VE.MASOVE FROM VE
+					WHERE VE.SDT = @SDT
+						AND VE.MACHUYENDI IN 
+						(
+							SELECT LICH.MACHUYENDI FROM LICH
+								WHERE LICH.NGAYDI = @NGAYDI
+						)
+			)
+				BEGIN
+					SELECT KHACH.SDT, VE.MASOVE, VE.SOGHE, LICH.NGAYDI, LICH.GIODI, LICH.SOHIEUXE FROM LICH, VE, KHACH
+						WHERE KHACH.SDT = @SDT
+							AND VE.SDT = KHACH.SDT
+							AND VE.MACHUYENDI IN
+							(
+								SELECT LICH.MACHUYENDI FROM LICH
+									WHERE LICH.NGAYDI = @NGAYDI
+							)	
+							AND LICH.MACHUYENDI = VE.MACHUYENDI	
+				END
+			ELSE
+				PRINT N'KHÁCH HÀNG CÓ SĐT ' + @SDT + N' CHƯA MUA VÉ'
+		END
+	ELSE
+		PRINT N'NGÀY ' + @NGAYDI + N' KHÔNG CÓ LỊCH'
+END
+GO
+
+EXEC SEARCH_MUAVE '0835000061', '06/20/2020'
+/*====================================================================================*/
+				/************************
+				|						|
+				|		CHỞ HÀNG		|
+				|						|
+				************************/
+				
+-- TÌM CHUYẾN CHỞ HÀNG BẰNG SĐT
+GO
+CREATE PROC SEARCH_CHOHANG_SDT
+	@SDT CHAR(10)
+AS
+BEGIN
+	IF EXISTS
+	(
+		SELECT * FROM CHOHANG
+			WHERE
+			(
+				CHOHANG.SDTNGUOIGUI = @SDT
+				OR CHOHANG.SDTNGUOINHAN = @SDT
+			)
+	)
+		SELECT * FROM LICH
+			WHERE LICH.MACHUYENDI = 
+			(
+				SELECT CHOHANG.MACHUYENDI FROM CHOHANG
+					WHERE
+					(
+						CHOHANG.SDTNGUOIGUI = @SDT
+						OR CHOHANG.SDTNGUOINHAN = @SDT
+					)
+			)
+	ELSE
+		PRINT N'KHÔNG TỒN TẠI SĐT ' + @SDT
+END
+GO
+
+EXEC SEARCH_CHOHANG_SDT '0381234000'
+
+--TÌM THEO MÃ CHUYẾN ĐI--
+GO
+CREATE PROC SEARCH_CHOHANG_NGAY
+	@NGAY NVARCHAR(10)
+AS
+BEGIN
+	IF EXISTS
+	(	
+		SELECT LICH.MACHUYENDI FROM LICH
+		WHERE LICH.NGAYDI = @NGAY
+	)
+		BEGIN
+		SELECT KIENHANG.SDTNGUOIGUI, KIENHANG.TENNGUOIGUI, KIENHANG.SDTNGUOINHAN, KIENHANG.TENNGUOINHAN
+		, KIENHANG.LOAIHANGHOA, CHOHANG.SOLUONG FROM KIENHANG, CHOHANG
+			WHERE CHOHANG.MACHUYENDI IN
+			(
+				SELECT LICH.MACHUYENDI FROM LICH
+					WHERE LICH.NGAYDI = @NGAY
+			)
+				AND KIENHANG.SDTNGUOIGUI = CHOHANG.SDTNGUOIGUI
+				AND KIENHANG.SDTNGUOINHAN = CHOHANG.SDTNGUOINHAN
+		END
+	ELSE
+		PRINT N'KHÔNG CÓ CHUYẾN HÀNG VÀO NGÀY ' + @NGAY
+END
+
+EXEC SEARCH_CHOHANG_NGAY '06/20/2020'
+
+-- THÊM CHUYẾN HÀNG
+GO
+CREATE PROC ADD_CHOHANG
+	@MACHUYENDI CHAR(11),
+	@SDTGUI CHAR(10),
+	@SDTNHAN CHAR(10),
+	@SOLUONG INT,
+	@GHICHU NVARCHAR(50)
+AS
+BEGIN
+	IF
+	(
+		EXISTS
+		(
+			SELECT LICH.MACHUYENDI FROM LICH
+				WHERE LICH.MACHUYENDI = @MACHUYENDI
+		)
+	)
+		BEGIN
+			IF
+			(
+				EXISTS
+				(
+					SELECT KIENHANG.SDTNGUOIGUI, KIENHANG.SDTNGUOINHAN FROM KIENHANG
+						WHERE KIENHANG.SDTNGUOIGUI = @SDTGUI AND KIENHANG.SDTNGUOINHAN = @SDTNHAN
+				)
+			)
+				BEGIN
+					INSERT INTO CHOHANG VALUES (@MACHUYENDI, @SDTGUI, @SDTNHAN, @SOLUONG, @GHICHU)
+					SELECT * FROM CHOHANG
+						WHERE CHOHANG.SDTNGUOIGUI = @SDTGUI
+							AND CHOHANG.SDTNGUOINHAN = @SDTNHAN
+							AND CHOHANG.MACHUYENDI = @MACHUYENDI
+				END
+			ELSE
+				BEGIN
+					PRINT N'KHÔNG TỒN TẠI HÀNG ĐƯỢC GỬI BỞI SĐT ' + @SDTGUI + N' VÀ NHẬN BỞI SĐT ' + @SDTNHAN
+				END
+		END
+	ELSE
+		BEGIN
+			PRINT N'KHÔNG TỒN TẠI CHUYẾN ' + @MACHUYENDI
+		END
+END
+GO
+
+EXEC ADD_CHOHANG '062020CD001', '0340987460', '0835000062', 3, N''
+
+---- CHỈNH SỬA SĐT CỦA CHUYẾN HÀNG
+GO
+CREATE PROC EDIT_CHOHANG_SDT
+	@SDTGUI CHAR(10),
+	@SDTNHANCU CHAR(10),
+	@SDTNHANMOI CHAR(10)
+AS
+BEGIN
+	UPDATE CHOHANG
+		SET
+			SDTNGUOINHAN = @SDTNHANMOI
+		WHERE SDTNGUOIGUI = @SDTGUI
+			AND SDTNGUOINHAN = @SDTNHANCU
+	SELECT * FROM CHOHANG
+		WHERE CHOHANG.SDTNGUOIGUI = @SDTGUI
+			AND CHOHANG.SDTNGUOINHAN = @SDTNHANMOI
+END
+GO
+
+EXEC EDIT_CHOHANG_SDT '0340987460', '0835000062', '0000000000'
+EXEC ADD_CHOHANG '062020CD001', '0340987460' ,'0835000062', 11, ''
+SELECT * FROM CHOHANG WHERE SDTNGUOIGUI = '0340987460'
+-- SỬA CHUYẾN HÀNG
+GO
+CREATE PROC EDIT_CHOHANG_LICH
+	@LICHCU CHAR(11),
+	@LICHMOI CHAR(11),
+	@SDTGUI CHAR(10),
+	@SDTNHAN CHAR(10)
+AS
+BEGIN
+	IF EXISTS
+	(
+		SELECT * FROM LICH, CHOHANG
+			WHERE LICH.MACHUYENDI = @LICHCU
+				AND CHOHANG.SDTNGUOIGUI = @SDTGUI
+				AND CHOHANG.SDTNGUOINHAN = @SDTNHAN
+	)
+		BEGIN
+			IF EXISTS
+			(
+				SELECT LICH.MACHUYENDI FROM LICH
+					WHERE LICH.MACHUYENDI = @LICHMOI
+			)
+				BEGIN
+					UPDATE CHOHANG
+						SET
+							MACHUYENDI = @LICHMOI
+						WHERE CHOHANG.SDTNGUOIGUI = @SDTGUI
+							AND CHOHANG.SDTNGUOINHAN = @SDTNHAN
+					SELECT * FROM CHOHANG
+						WHERE CHOHANG.MACHUYENDI = @LICHMOI
+							AND CHOHANG.SDTNGUOIGUI = @SDTGUI
+							AND CHOHANG.SDTNGUOINHAN = @SDTNHAN
+				END
+			ELSE
+				PRINT N'KHÔNG TỒN TẠI CHUYẾN ' + @LICHMOI
+		END
+	ELSE
+		PRINT N'CHỈNH SỬA THẤT BẠI. VUI LÒNG KIỂM TRA LẠI THÔNG TIN CẦN CHỈNH SỬA VÀ THÔNG TIN ĐƯỢC NHẬP MỚI VÀO'
+END
+GO
+
+EXEC EDIT_CHOHANG_LICH '062020CD001', '062120CD001', '0340987460', '0835000062'
+
+-- SỬA SỐ LƯỢNG HÀNG
+GO
+CREATE PROC EDIT_CHOHANG_SOLUONG
+	@SDTGUI CHAR(10),
+	@SDTNHAN CHAR(10),
+	@SOLUONG INT
+AS
+BEGIN
+	IF EXISTS
+	(
+		SELECT KIENHANG.SDTNGUOIGUI, KIENHANG.SDTNGUOINHAN FROM KIENHANG
+			WHERE KIENHANG.SDTNGUOIGUI = @SDTGUI
+				AND KIENHANG.SDTNGUOINHAN = @SDTNHAN
+	)
+		BEGIN
+			IF EXISTS
+			(
+				SELECT CHOHANG.SDTNGUOIGUI, CHOHANG.SDTNGUOINHAN FROM CHOHANG
+					WHERE CHOHANG.SDTNGUOIGUI = @SDTGUI
+						AND CHOHANG.SDTNGUOINHAN = @SDTNHAN
+			)
+				BEGIN
+					UPDATE CHOHANG
+						SET
+							SOLUONG = @SOLUONG
+						WHERE CHOHANG.SDTNGUOIGUI = @SDTGUI
+							AND CHOHANG.SDTNGUOINHAN = @SDTNHAN
+					SELECT * FROM CHOHANG
+						WHERE CHOHANG.SDTNGUOIGUI = @SDTGUI
+							AND CHOHANG.SDTNGUOINHAN = @SDTNHAN
+				END
+			ELSE
+				PRINT N'KHÔNG CÓ CHUYẾN HÀNG TỪ SĐT ' + @SDTGUI + N' GỬI ĐẾN SĐT ' + @SDTNHAN
+		END
+	ELSE
+		PRINT N'KHÔNG TỒN TẠI HÀNG TỪ SĐT ' + @SDTGUI + N' GỬI ĐẾN SĐT ' + @SDTNHAN
+END
+GO
+
+EXEC EDIT_CHOHANG_SOLUONG '0340987460', '0835000062', 11
+EXEC EDIT_KIENHANG '0340987460','0835000062',N'HỒ QUÝ LY',N'TRẦN QUỐC TUẤN',N'XE KHONG ĐẠP'
+------------------------------------------------------------------------------------------------------
+/*====================================================================================*/
+				/************************
+				|						|
+				|		KIỆN HÀNG		|
+				|						|
+				************************/
+-- ADD/EDIT/DEL KIỆN HÀNG --
+
+
+-- EDIT --
+GO
+CREATE PROC EDIT_KIENHANG
+	@SDTGUI CHAR(10),
+	@SDTNHAN CHAR(10),
+	@NGUOIGUI NVARCHAR(50),
+	@NGUOINHAN NVARCHAR(50),
+	@LOAIHANG NVARCHAR(50)
+AS
+BEGIN
+	IF EXISTS 
+	(
+		SELECT KIENHANG.TENNGUOIGUI FROM KIENHANG
+			WHERE KIENHANG.SDTNGUOIGUI = @SDTGUI
+				AND KIENHANG.SDTNGUOINHAN = @SDTNHAN
+	)	
+		BEGIN
+			DECLARE @SDT CHAR(10)
+			SET @SDT = (SELECT KIENHANG.SDTNGUOINHAN FROM KIENHANG WHERE KIENHANG.SDTNGUOINHAN = @SDTNHAN)
+			UPDATE KIENHANG
+				SET 
+					TENNGUOIGUI = @NGUOIGUI,
+					SDTNGUOINHAN = @SDTNHAN,
+					TENNGUOINHAN = @NGUOINHAN,
+					LOAIHANGHOA = @LOAIHANG
+				WHERE SDTNGUOIGUI = @SDTGUI AND SDTNGUOINHAN = @SDTNHAN
+			SELECT * FROM KIENHANG
+				WHERE KIENHANG.SDTNGUOIGUI = @SDTGUI
+					AND KIENHANG.SDTNGUOINHAN = @NGUOINHAN
+		END
+	ELSE 
+		PRINT N'KHÔNG TỒN TẠI NGƯỜI GỬI CÓ SĐT ' + @SDTGUI + N' VÀ NGƯỜI NHẬN CÓ SĐT ' + @SDTNHAN
+END
+
+EXEC ADD_KIENHANG '0340987460','0835000062',N'TRƯƠNG VĂN TUẤN',N'NGUYỄN ANH QUỐC',N'THÙNG HÀNG'
+EXEC EDIT_KIENHANG '0340987460','0835000062',N'HỒ QUÝ LY',N'TRẦN QUỐC TUẤN',N'XE KHONG ĐẠP'
+EXEC DEL_KIENHANG '0340987460','0835000062'
+
+-- EDIT NGƯỜI NHẬN
+GO
+CREATE PROC EDIT_KIENHANG_NGUOINHAN
+	@SDTGUI CHAR(10),
+	@NGUOIGUI NVARCHAR(50),
+	@SDTNHAN CHAR(10),
+	@NGUOINHAN NVARCHAR(50),
+	@SDTNHANMOI CHAR(10),
+	@NGUOINHANMOI NVARCHAR(50)
+AS
+BEGIN
+	IF EXISTS
+	(
+		SELECT * FROM KIENHANG
+			WHERE KIENHANG.SDTNGUOIGUI = @SDTGUI
+				AND KIENHANG.SDTNGUOINHAN = @SDTNHAN
+	)
+		BEGIN
+			DECLARE @T CHAR(10)
+			SET @T = (SELECT KIENHANG.SDTNGUOINHAN FROM KIENHANG WHERE KIENHANG.SDTNGUOINHAN = @SDTNHAN)
+			UPDATE KIENHANG
+				SET
+					SDTNGUOINHAN = @SDTNHANMOI,
+					TENNGUOINHAN = @NGUOINHANMOI
+				WHERE KIENHANG.SDTNGUOIGUI = @SDTGUI
+					AND KIENHANG.SDTNGUOINHAN = @T	
+			EXEC EDIT_CHOHANG_SDT @SDTGUI, @T, @SDTNHANMOI	
+			SELECT * FROM KIENHANG
+				WHERE KIENHANG.SDTNGUOIGUI = @SDTGUI
+					AND KIENHANG.SDTNGUOINHAN = @SDTNHANMOI
+		END
+END
+GO
+
+EXEC ADD_KIENHANG '0340987460','111111111',N'TRƯƠNG VĂN TUẤN',N'TRẦN A A A',N'THÙNG HÀNG'
+EXEC ADD_CHOHANG '062020CD001', '0340987460', '111111111', 11, ''
+EXEC EDIT_KIENHANG_NGUOINHAN '0340987460', N'TRƯƠNG VĂN TUẤN', '111111111', N'NGUYỄN ANH QUỐC', '0000000000', N'TRẦN C C C'
+SELECT * FROM KIENHANG WHERE SDTNGUOIGUI = '0340987460'
+SELECT * FROM CHOHANG WHERE SDTNGUOIGUI = '0340987460'
+EXEC DEL_KIENHANG '0340987460', '111111111'
+DROP PROC EDIT_KIENHANG_NGUOINHAN
+DROP PROC EDIT_CHOHANG_SDT
+-- ADD --
+GO
+CREATE PROC ADD_KIENHANG
+	@SDTNGUOIGUI CHAR(10),
+	@SDTNGUOINHAN CHAR(10),
+	@TENNGUOIGUI NVARCHAR(50),
+	@TENNGUOINHAN NVARCHAR(50),
+	@LOAIHANG NVARCHAR(50)
+AS
+BEGIN
+	IF EXISTS
+	(
+		SELECT KIENHANG.SDTNGUOIGUI FROM KIENHANG
+			WHERE KIENHANG.SDTNGUOIGUI = @SDTNGUOIGUI
+	)
+		BEGIN
+			IF NOT EXISTS
+			(
+				SELECT KIENHANG.SDTNGUOINHAN FROM KIENHANG
+					WHERE KIENHANG.SDTNGUOINHAN = @SDTNGUOINHAN
+			)
+				BEGIN
+					INSERT INTO KIENHANG VALUES (@SDTNGUOIGUI, @SDTNGUOINHAN, @TENNGUOIGUI, @TENNGUOINHAN, @LOAIHANG)
+					SELECT * FROM KIENHANG
+						WHERE KIENHANG.SDTNGUOIGUI = @SDTNGUOIGUI
+							AND KIENHANG.SDTNGUOINHAN = @SDTNGUOINHAN
+				END
+			ELSE
+				BEGIN
+					EXEC EDIT_KIENHANG @SDTNGUOIGUI, @SDTNGUOINHAN, @TENNGUOIGUI, @TENNGUOINHAN, @LOAIHANG
+					SELECT * FROM KIENHANG
+						WHERE KIENHANG.SDTNGUOIGUI = @SDTNGUOIGUI
+							AND KIENHANG.SDTNGUOINHAN = @SDTNGUOINHAN
+				END
+		END
+	ELSE
+		BEGIN
+			INSERT INTO KIENHANG VALUES (@SDTNGUOIGUI, @SDTNGUOINHAN, @TENNGUOIGUI, @TENNGUOINHAN, @LOAIHANG)
+			SELECT * FROM KIENHANG
+						WHERE KIENHANG.SDTNGUOIGUI = @SDTNGUOIGUI
+							AND KIENHANG.SDTNGUOINHAN = @SDTNGUOINHAN
+		END
+END
+
+-- DEL --
+
+GO
+CREATE PROC DEL_KIENHANG
+	@SDTNGUOIGUI CHAR(10),
+	@SDTNGUOINHAN CHAR(10)
+AS
+BEGIN
+	IF EXISTS 
+	(
+		SELECT KIENHANG.SDTNGUOIGUI, KIENHANG.SDTNGUOINHAN FROM KIENHANG 
+			WHERE KIENHANG.SDTNGUOIGUI = @SDTNGUOIGUI 
+				AND KIENHANG.SDTNGUOINHAN = @SDTNGUOINHAN 
+	)
+		BEGIN 
+			DELETE FROM KIENHANG
+				WHERE KIENHANG.SDTNGUOIGUI = @SDTNGUOIGUI 
+					AND KIENHANG.SDTNGUOINHAN = @SDTNGUOINHAN
+			SET NOCOUNT ON
+			DELETE FROM CHOHANG
+				WHERE CHOHANG.SDTNGUOIGUI = @SDTNGUOIGUI
+					AND CHOHANG.SDTNGUOINHAN = @SDTNGUOINHAN
+			SET NOCOUNT ON
+			PRINT N'XÓA THÀNH CÔNG'
+		END
+	ELSE 
+		PRINT N'XÓA KHÔNG THÀNH CÔNG, KHÔNG TỒN TẠI SĐT ' + @SDTNGUOIGUI + N' VÀ ' + @SDTNGUOINHAN
+END
+
+EXEC ADD_KIENHANG '0340987460','0835000062',N'TRƯƠNG VĂN TUẤN',N'NGUYỄN ANH QUỐC',N'THÙNG HÀNG'
+EXEC EDIT_KIENHANG '0340987460','0835000062',N'HỒ QUÝ LY',N'TRẦN QUỐC TUẤN',N'XE KHONG ĐẠP'
+EXEC DEL_KIENHANG '0340987460','0835000062'
+
+-- TÌM HÀNG BẰNG SĐT --
+GO
+CREATE PROC SEARCH_KIENHANG
+	@SDT CHAR(10)
+AS
+BEGIN
+	IF EXISTS
+	(
+		SELECT * FROM KIENHANG
+			WHERE
+			(
+				SDTNGUOIGUI = @SDT
+				OR SDTNGUOINHAN = @SDT
+			)
+	)
+		SELECT * FROM KIENHANG
+			WHERE
+			(
+				SDTNGUOIGUI = @SDT
+				OR SDTNGUOINHAN = @SDT
+			)
+	ELSE
+		PRINT N'SỐ ĐIỆN THOẠI KHÔNG TỒN TẠI'
+END
+GO
+
+EXEC SEARCH_KIENHANG '0381234000'
+
+--TÌM THEO LOẠI HÀNG--
+GO
+CREATE PROC SEARCH_KIENHANG_TYPE
+	@TYPE NVARCHAR(50)
+AS
+BEGIN
+	IF EXISTS 
+	(
+		SELECT KIENHANG.LOAIHANGHOA FROM KIENHANG
+		WHERE KIENHANG.LOAIHANGHOA LIKE '%' + @TYPE + '%'
+	)
+		SELECT * FROM KIENHANG
+		WHERE KIENHANG.LOAIHANGHOA LIKE '%' + @TYPE + '%'
+	ELSE PRINT N'KHÔNG TỒN TẠI HÀNG LOẠI ' + @TYPE
+END
+
+EXEC SEARCH_KIENHANG_TYPE N'THÙNG'
+
+--=============================================
+
+-- TẠO QUẢN LÍ --
+GO
+EXEC sp_addlogin 'admin','123'
+GO
+
+-- CẤP QUYỀN SỬ DỤNG
+use QL_XK
+exec sp_grantdbaccess 'admin'
+
+GRANT SELECT ON CHOHANG TO ADMIN
+GRANT SELECT ON KIENHANG TO ADMIN
+GRANT SELECT ON KHACH TO ADMIN
+GRANT SELECT ON LICH TO ADMIN
+GRANT SELECT ON V_TAIXE TO ADMIN
+GRANT SELECT ON VE TO ADMIN
+GRANT SELECT ON XE TO ADMIN
+
+GRANT CREATE VIEW TO ADMIN
+
+GRANT CREATE PROC TO ADMIN
+GRANT DROP PROC TO ADMIN
+GRANT ALTER PROC TO ADMIN
+GRANT EXECUTE TO ADMIN
+
+-- THU HỒI QUYỀN SỬ DỤNG
+USE QL_XK
+EXEC sp_revokedbaccess 'ADMIN'
+
+REVOKE SELECT ON CHOHANG FROM ADMIN
+REVOKE SELECT ON KIENHANG FROM ADMIN
+REVOKE SELECT ON KHACH FROM ADMIN
+REVOKE SELECT ON LICH FROM ADMIN
+REVOKE SELECT ON V_TAIXE FROM ADMIN
+REVOKE SELECT ON VE FROM ADMIN
+REVOKE SELECT ON XE FROM ADMIN
+
+REVOKE CREATE VIEW TO ADMIN
+
+REVOKE CREATE PROC FROM ADMIN
+REVOKE DROP PROC FROM ADMIN
+REVOKE ALTER PROC FROM ADMIN
+REVOKE EXECUTE FROM ADMIN
+--=============================================
+
+-- TẠO QUẢN LÍ LỊCH --
+GO
+exec sp_addlogin 'adminlich','123'
+GO
+
+-- CẤP QUYỀN SỬ DỤNG
+use QL_XK
+exec sp_grantdbaccess 'adminlich'
+
+grant all on LICH to adminlich
+
+GRANT CREATE VIEW TO ADMINLICH
+GRANT SELECT ON V_XE TO ADMINLICH
+GRANT SELECT ON V_TAIXE TO ADMINLICH
+
+GRANT EXEC ON ADD_LICH TO ADMINLICH
+GRANT EXEC ON DEL_LICH TO ADMINLICH
+GRANT EXEC ON EDIT_LICH TO ADMINLICH
+GRANT EXEC ON SEARCH_LICH TO ADMINLICH
+GRANT EXEC ON SEARCH_LICH_XE TO ADMINLICH
+GRANT EXEC ON SEARCH_LICH_TAIXE TO ADMINLICH
+-- THU HỒI QUYỀN SỬ DỤNG
+USE QL_XK
+EXEC sp_revokedbaccess 'ADMINLICH'
+
+REVOKE ALL ON LICH FROM ADMINLICH
+
+REVOKE CREATE VIEW FROM ADMINLICH
+REVOKE SELECT ON V_XE FROM ADMINLICH
+REVOKE SELECT ON V_TAIXE FROM ADMINLICH
+
+REVOKE EXEC ON ADD_LICH FROM ADMINLICH
+REVOKE EXEC ON DEL_LICH FROM ADMINLICH
+REVOKE EXEC ON EDIT_LICH FROM ADMINLICH
+REVOKE EXEC ON SEARCH_LICH FROM ADMINLICH
+REVOKE EXEC ON SEARCH_LICH_XE FROM ADMINLICH
+REVOKE EXEC ON SEARCH_LICH_TAIXE FROM ADMINLICH
+--=============================================
+
+-- TẠO QUẢN LÍ VÉ --
+GO
+exec sp_addlogin 'adminve','123'
+GO
+
+-- CẤP QUYỀN SỬ DỤNG
+use QL_XK
+exec sp_grantdbaccess 'adminve'
+
+grant all on VE to adminve
+GRANT SELECT ON LICH TO ADMINVE
+
+GRANT CREATE VIEW TO ADMINVE
+
+GRANT EXEC ON ADD_VE FROM ADMINVE
+GRANT EXEC ON EDIT_VE FROM ADMINVE
+GRANT EXEC ON DEL_VE FROM ADMINVE
+
+-- THU HỒI QUYỀN SỬ DỤNG
+USE QL_XK
+EXEC sp_revokedbaccess 'ADMINVE'
+
+REVOKE ALL ON VE FROM ADMINVE
+REVOKE SELECT ON LICH FROM ADMINVE
+
+REVOKE CREATE VIEW FROM ADMINVE
+
+REVOKE EXEC ON ADD_VE FROM ADMINVE
+REVOKE EXEC ON EDIT_VE FROM ADMINVE
+REVOKE EXEC ON DEL_VE FROM ADMINVE
+--=============================================
+
+-- TẠO QUẢN LÍ TÀI XẾ --
+GO
+exec sp_addlogin 'admintaixe','123'
+GO
+
+-- CẤP QUYỀN SỬ DỤNG
+use QL_XK
+exec sp_grantdbaccess 'admintaixe'
+
+grant all on TAIXE to admintaixe
+
+GRANT CREATE VIEW TO ADMINTAIXE
+
+GRANT EXEC ON ADD_TAIXE TO ADMINTAIXE
+GRANT EXEC ON EDIT_TAIXE TO ADMINTAIXE
+GRANT EXEC ON DEL_TAIXE TO ADMINTAIXE
+GRANT EXEC ON SEACH_TAIXE TO ADMINTAIXE
+
+-- THU HỒI QUYỀN SỬ DỤNG
+USE QL_XK
+EXEC sp_revokedbaccess 'ADMINTAIXE'
+
+REVOKE ALL ON TAIXE FROM ADMINTAIXE
+
+REVOKE CREATE VIEW FROM ADMINTAIXE
+
+REVOKE EXEC ON ADD_TAIXE FROM ADMINTAIXE
+REVOKE EXEC ON EDIT_TAIXE FROM ADMINTAIXE
+REVOKE EXEC ON DEL_TAIXE FROM ADMINTAIXE
+REVOKE EXEC ON SEACH_TAIXE FROM ADMINTAIXE
+--=============================================
+
+-- TẠO QUẢN LÍ XE --
+GO
+exec sp_addlogin 'adminxe','123'
+GO
+
+-- CẤP QUYỀN SỬ DỤNG
+use QL_XK
+exec sp_grantdbaccess 'adminxe'
+
+grant all on XE to adminxe
+
+GRANT CREATE VIEW TO ADMINXE
+GRANT SELECT ON V_XE TO ADMINXE
+
+GRANT EXEC ON ADD_XE TO ADMINXE
+GRANT EXEC ON EDIT_XE TO ADMINXE
+GRANT EXEC ON DEL_XE TO ADMINXE
+GRANT EXEC ON SEARCH_XE_ID TO ADMINXE
+GRANT EXEC ON SEARCH_XE_BANGSO TO ADMINXE
+
+-- THU HỒI QUYỀN SỬ DỤNG
+USE QL_XK
+EXEC sp_revokedbaccess 'ADMINXE'
+
+REVOKE ALL FROM ADMINXE
+
+REVOKE CREATE VIEW FROM ADMINXE
+REVOKE SELECT ON V_XE FROM ADMINXE
+
+REVOKE EXEC ON ADD_XE FROM ADMINXE
+REVOKE EXEC ON EDIT_XE FROM ADMINXE
+REVOKE EXEC ON DEL_XE FROM ADMINXE
+REVOKE EXEC ON SEARCH_XE_ID FROM ADMINXE
+REVOKE EXEC ON SEARCH_XE_BANGSO FROM ADMINXE
+--=============================================
+
+-- TẠO NHÂN VIÊN ĐĂNG KÝ --
+GO
+exec sp_addlogin 'nhanviendk','123'
+GO
+
+-- CẤP QUYỀN SỬ DỤNG
+use QL_XK
+exec sp_grantdbaccess 'nhanviendk'
+
+grant all on KHACH to nhanviendk
+grant all on KIENHANG to nhanviendk
+grant all on CHOHANG to nhanviendk
+GRANT SELECT ON VE TO NHANVIENDK
+GRANT UPDATE ON VE TO NHANVIENDK
+GRANT SELECT ON LICH TO NHANVIENDK
+
+GRANT CREATE VIEW TO NHANVIENDK
+
+GRANT EXEC ON ADD_KIENHANG TO NHANVIENDK
+GRANT EXEC ON ADD_CHOHANG TO NHANVIENDK
+
+GRANT EXEC ON MUAVE TO NHANVIENDK
+GRANT EXEC ON SUAVE TO NHANVIENDK
+GRANT EXEC ON XOAVE TO NHANVIENDK
+
+GRANT EXEC ON EDIT_KIENHANG_NGUOINHAN TO NHANVIENDK
+GRANT EXEC ON EDIT_KHACHHANG TO NHANVIENDK
+GRANT EXEC ON EDIT_CHOHANG_LICH TO NHANVIENDK
+GRANT EXEC ON EDIT_CHOHANG_SOLUONG TO NHANVIENDK
+
+GRANT EXEC ON DEL_KIENHANG TO NHANVIENDK
+GRANT EXEC ON DEL_KHACHHANG TO NHANVIENDK
+
+GRANT EXEC ON SEARCH_LICH TO NHANVIENDK
+GRANT EXEC ON SEARCH_KHACH_LICH TO NHANVIENDK
+GRANT EXEC ON SEARCH_KHACH_NOIDON TO NHANVIENDK
+GRANT EXEC ON SEARCH_KHACH_NOIDUA TO NHANVIENDK
+GRANT EXEC ON SEARCH_KHACH_SDT TO NHANVIENDK
+GRANT EXEC ON SEARCH_CHOHANG_NGAY TO NHANVIENDK
+GRANT EXEC ON SEARCH_CHOHANG_SDT TO NHANVIENDK
+GRANT EXEC ON SEARCH_KIENHANG TO NHANVIENDK
+GRANT EXEC ON SEARCH_KIENHANG_TYPE TO NHANVIENDK
+GRANT EXEC ON SEARCH_MUAVE TO NHANVIENDK
+
+-- THU HỒI QUYỀN SỬ DỤNG
+USE QL_XK
+EXEC sp_revokedbaccess 'NHANVIENDK'
+
+REVOKE all on KHACH FROM nhanviendk
+REVOKE all on KIENHANG FROM nhanviendk
+REVOKE all on CHOHANG FROM nhanviendk
+REVOKE SELECT ON VE FROM NHANVIENDK
+REVOKE UPDATE ON VE FROM NHANVIENDK
+REVOKE SELECT ON LICH FROM NHANVIENDK
+
+REVOKE CREATE VIEW FROM NHANVIENDK
+
+REVOKE EXEC ON ADD_KIENHANG FROM NHANVIENDK
+REVOKE EXEC ON ADD_CHOHANG FROM NHANVIENDK
+
+REVOKE EXEC ON MUAVE FROM NHANVIENDK
+REVOKE EXEC ON SUAVE FROM NHANVIENDK
+REVOKE EXEC ON XOAVE FROM NHANVIENDK
+
+REVOKE EXEC ON EDIT_KIENHANG_NGUOINHAN FROM NHANVIENDK
+REVOKE EXEC ON EDIT_KHACHHANG FROM NHANVIENDK
+REVOKE EXEC ON EDIT_CHOHANG_LICH FROM NHANVIENDK
+REVOKE EXEC ON EDIT_CHOHANG_SOLUONG FROM NHANVIENDK
+
+REVOKE EXEC ON DEL_KIENHANG FROM NHANVIENDK
+REVOKE EXEC ON DEL_KHACHHANG FROM NHANVIENDK
+
+REVOKE EXEC ON SEARCH_LICH FROM NHANVIENDK
+REVOKE EXEC ON SEARCH_KHACH_LICH FROM NHANVIENDK
+REVOKE EXEC ON SEARCH_KHACH_NOIDON FROM NHANVIENDK
+REVOKE EXEC ON SEARCH_KHACH_NOIDUA FROM NHANVIENDK
+REVOKE EXEC ON SEARCH_KHACH_SDT FROM NHANVIENDK
+REVOKE EXEC ON SEARCH_CHOHANG_NGAY FROM NHANVIENDK
+REVOKE EXEC ON SEARCH_CHOHANG_SDT FROM NHANVIENDK
+REVOKE EXEC ON SEARCH_KIENHANG FROM NHANVIENDK
+REVOKE EXEC ON SEARCH_KIENHANG_TYPE FROM NHANVIENDK
+REVOKE EXEC ON SEARCH_MUAVE FROM NHANVIENDK
+--=============================================
+
+-- TẠO USER CHO TÀI XẾ --
+GO
+exec sp_addlogin 'TX001', '123'
+exec sp_addlogin 'TX002', '123'
+exec sp_addlogin 'TX003', '123'
+exec sp_addlogin 'TX004', '123'
+exec sp_addlogin 'TX005', '123'
+GO
+
+-- CẤP QUYỀN SỬ DỤNG
+use QL_XK
+exec sp_grantdbaccess 'TX001'
+
+use QL_XK
+exec sp_grantdbaccess 'TX002'
+
+use QL_XK
+exec sp_grantdbaccess 'TX003'
+
+use QL_XK
+exec sp_grantdbaccess 'TX004'
+
+use QL_XK
+exec sp_grantdbaccess 'TX005'
+
+GRANT CREATE VIEW TO TX001, TX002, TX003, TX004, TX005
+
+grant select on V_TAIXE to tx001, tx002, tx003, tx004, tx005
+grant select on LICH to tx001, tx002, tx003, tx004, tx005
+GRANT SELECT ON KHACH TO TX001, TX002, TX003, TX004, TX005
+
+GRANT EXEC ON SEARCH_KHACH_LICH TO TX001, TX002, TX003, TX004, TX005
+GRANT EXEC ON SEARCH_KHACH_NOIDON TO TX001, TX002, TX003, TX004, TX005
+GRANT EXEC ON SEARCH_KHACH_NOIDUA TO TX001, TX002, TX003, TX004, TX005
+GRANT EXEC ON SEARCH_KHACH_SDT TO TX001, TX002, TX003, TX004, TX005
+GRANT EXEC ON SEARCH_LICH_TAIXE TO TX001, TX002, TX003, TX004, TX005
+
+-- THU HỒI QUYỀN SỬ DỤNG
+USE QL_XK
+EXEC sp_revokedbaccess 'TX001'
+USE QL_XK
+EXEC sp_revokedbaccess 'TX002'
+USE QL_XK
+EXEC sp_revokedbaccess 'TX003'
+USE QL_XK
+EXEC sp_revokedbaccess 'TX004'
+USE QL_XK
+EXEC sp_revokedbaccess 'TX005'
+
+REVOKE CREATE VIEW FROM TX001, TX002, TX003, TX004, TX005
+
+REVOKE SELECT ON V_TAIXE FROM TX001, TX002, TX003, TX004, TX005
+REVOKE SELECT ON LICH  FROM TX001, TX002, TX003, TX004, TX005
+
+REVOKE EXEC ON SEARCH_KHACH_LICH FROM TX001, TX002, TX003, TX004, TX005
+REVOKE EXEC ON SEARCH_KHACH_NOIDON FROM TX001, TX002, TX003, TX004, TX005
+REVOKE EXEC ON SEARCH_KHACH_NOIDUA FROM TX001, TX002, TX003, TX004, TX005
+REVOKE EXEC ON SEARCH_KHACH_SDT FROM TX001, TX002, TX003, TX004, TX005
+REVOKE EXEC ON SEARCH_LICH_TAIXE FROM TX001, TX002, TX003, TX004, TX005
+--=============================================
+
+-- TẠO USER CHO KHÁCH --
+GO
+exec sp_addlogin 'khach','123'
+use QL_XK
+exec sp_grantdbaccess 'khach'
+GO
+
+-- CẤP QUYỀN SỬ DỤNG
+USE QL_XK
+EXEC sp_grantdbaccess 'KHACH'
+
+grant select on LICH to khach
+
+GRANT EXEC ON SEARCH_LICH TO KHACH
+-- THU HỒI QUYỀN SỬ DỤNG
+USE QL_XK
+EXEC sp_revokedbaccess 'KHACH'
+
+REVOKE SELECT ON LICH FROM KHACH
+
+REVOKE EXEC ON SEARCH_LICH FROM KHACH
